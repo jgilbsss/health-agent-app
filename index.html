@@ -12,7 +12,7 @@
 :root {
   --bg:#0d0c0a; --card:#17150f; --card2:#1d1a13; --line:#2a261c;
   --txt:#f4f1ea; --mut:#8d877a; --gold:#d4a843; --orange:#e06c3a;
-  --blue:#5aa9e6; --green:#5cb87a; --red:#e05a5a;
+  --blue:#5aa9e6; --green:#5cb87a; --red:#e05a5a; --purple:#b08fe0;
   --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
 }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -50,6 +50,7 @@ h1.big .accent { display:block; }
 select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
 .noteinput { flex:1; min-width:110px; }
 .restpill { font-size:11px; letter-spacing:1px; color:var(--mut); border:1px solid var(--line); border-radius:99px; padding:5px 12px; text-transform:uppercase; }
+.restpill.ext { color:var(--orange); border-color:#4a3220; }
 .bigbtn { display:block; width:100%; font:inherit; font-size:16px; font-weight:800; letter-spacing:.5px; color:#0d0c0a; background:var(--gold); border:none; border-radius:16px; padding:16px; margin:18px 0 6px; }
 .bigbtn:disabled { background:#3a362b; color:#7a7466; }
 .bigbtn.ghost { background:transparent; border:1px solid var(--line); color:var(--mut); font-weight:600; padding:12px; font-size:13px; margin:6px 0; }
@@ -59,6 +60,12 @@ select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color
 .restcard h2 { font-size:30px; letter-spacing:2px; color:var(--mut); margin:14px 0 6px; text-transform:uppercase; }
 .tip { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 15px; font-size:13.5px; line-height:1.5; margin-bottom:10px; text-align:left; color:var(--txt); }
 .tip b { color:var(--gold); }
+/* logged (read-only history) */
+.hrow { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:14px; align-items:baseline; }
+.hrow:last-child { border:none; }
+.hrow .nm { font-weight:650; }
+.hrow .det { color:var(--mut); font-size:12.5px; white-space:nowrap; }
+.hnote { font-size:11.5px; color:var(--orange); margin-top:2px; }
 /* timer bar */
 #timerbar { position:fixed; left:0; right:0; bottom:0; background:rgba(13,12,10,.96); backdrop-filter:blur(10px); border-top:1px solid var(--line); padding:10px 16px calc(var(--safe-bot) + 10px); display:none; z-index:50; }
 #timerbar.on { display:block; }
@@ -73,21 +80,42 @@ select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color
 #tabs button { flex:1; font:inherit; font-size:11px; letter-spacing:1px; font-weight:700; text-transform:uppercase; color:var(--mut); background:none; border:none; padding:13px 0 10px; }
 #tabs button.sel { color:var(--gold); }
 /* dashboard */
-.verdict { text-align:center; padding:24px 16px; }
-.verdict .v { font-size:30px; font-weight:850; letter-spacing:.5px; text-transform:uppercase; }
+.verdict { text-align:center; padding:20px 16px; }
+.verdict .v { font-size:28px; font-weight:850; letter-spacing:.5px; text-transform:uppercase; }
 .v.green { color:var(--green); } .v.yellow { color:var(--gold); } .v.red { color:var(--red); } .v.stale { color:var(--mut); }
-.verdict .adv { font-size:13.5px; color:var(--mut); margin-top:8px; line-height:1.5; }
-.sigs { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:12px; }
+.verdict .adv { font-size:13px; color:var(--mut); margin-top:7px; line-height:1.5; }
+.sigs { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:11px; }
 .sig { font-size:11.5px; padding:5px 11px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
 .sig.s0 { color:var(--green); border-color:#2c4a36; } .sig.s1 { color:var(--gold); border-color:#4a3f1d; } .sig.s2 { color:var(--red); border-color:#4a2424; }
-.strip { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
-.day { background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:8px 2px; text-align:center; font-size:10.5px; line-height:1.8; }
-.day .dd { font-weight:800; color:var(--mut); }
 h3.sec { font-size:11px; letter-spacing:2px; color:var(--mut); text-transform:uppercase; margin:18px 0 8px; }
+.togglerow { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+.tg { font-size:11.5px; font-weight:700; letter-spacing:.5px; border:1.5px solid var(--line); color:var(--mut); border-radius:99px; padding:7px 13px; background:transparent; }
+.tg.on { color:#0d0c0a; border-color:transparent; }
+.tg.on.c-rhr { background:var(--red); } .tg.on.c-hrv { background:var(--blue); }
+.tg.on.c-slp { background:var(--purple); } .tg.on.c-st { background:#9a9384; } .tg.on.c-wt { background:var(--gold); }
+.rangerow { display:flex; gap:6px; margin-bottom:10px; }
+.rg { flex:1; font-size:12px; font-weight:700; border:1px solid var(--line); color:var(--mut); border-radius:10px; padding:8px 0; background:transparent; text-align:center; }
+.rg.on { color:var(--gold); border-color:var(--gold); }
+#chart { width:100%; height:230px; display:block; }
+.legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font-size:11.5px; color:var(--mut); }
+.legend b { color:var(--txt); }
+.dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:1px; }
+.statrow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stat { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; text-align:center; }
+.stat .num { font-size:26px; font-weight:850; }
+.stat .lbl { font-size:10.5px; letter-spacing:1.5px; color:var(--mut); text-transform:uppercase; margin-top:3px; }
+.wkbars { display:flex; gap:10px; align-items:flex-end; height:110px; padding-top:6px; }
+.wkbar { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; justify-content:flex-end; }
+.wkbar .bar { width:100%; max-width:46px; border-radius:8px 8px 3px 3px; background:var(--card2); border:1px solid var(--line); position:relative; overflow:hidden; }
+.wkbar .fill { position:absolute; bottom:0; left:0; right:0; background:var(--gold); }
+.wkbar .lb { font-size:10px; color:var(--mut); letter-spacing:.5px; }
+.wkbar .val { font-size:10.5px; color:var(--txt); font-weight:700; }
+.progbox { max-height:250px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .bumps .row { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
 .bumps .row:last-child { border:none; }
 .bumps .st { font-weight:800; white-space:nowrap; }
 .st.bump { color:var(--green); } .st.work { color:var(--blue); } .st.wait { color:var(--mut); }
+.scrollhint { text-align:center; font-size:10px; color:var(--mut); letter-spacing:1px; margin-top:6px; }
 /* settings */
 label.f { display:block; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--mut); margin:14px 0 6px; }
 input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:12px; padding:12px; }
@@ -114,11 +142,9 @@ input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); col
 
 <script>
 'use strict';
-/* ================= Health Agent phone app =================
-   Data: private GitHub gist with files appdata.json (Mac → phone:
-   program, prefilled weights, readiness, dashboard) and inbox.json
-   (phone → Mac: logged sessions; ingested by scripts/sync_phone.py).
-   Settings (token, gist id) live in localStorage only — never hosted. */
+/* Health Agent phone app v2 — gist sync (appdata.json / inbox.json).
+   v2: dashboard chart w/ range + metric toggles, weekly volume vs plan,
+   adherence + streak, weight rate, past-day logged history, auto rest-extension notes. */
 
 const LS = {
   get k() { return JSON.parse(localStorage.getItem('ha_settings') || '{}'); },
@@ -131,28 +157,37 @@ const store = {
   set queue(v) { localStorage.setItem('ha_queue', JSON.stringify(v)); },
   draft(date) { return JSON.parse(localStorage.getItem('ha_draft_' + date) || 'null'); },
   setDraft(date, v) { localStorage.setItem('ha_draft_' + date, JSON.stringify(v)); },
-  clearDraft(date) { localStorage.removeItem('ha_draft_' + date); }
 };
 
 const WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const ACCENTS = { 'Push A':'#d4a843','Push B':'#d4a843','Pull A':'#cfc9bd','Pull B':'#cfc9bd',
                   'Legs A':'#e06c3a','Legs B':'#e06c3a','REST':'#5cb87a' };
+const METRICS = [
+  { id:'rhr', label:'RHR', color:'#e05a5a', on:true },
+  { id:'hrv', label:'HRV', color:'#5aa9e6', on:true },
+  { id:'slp', label:'SLEEP', color:'#b08fe0', on:false },
+  { id:'st',  label:'STEPS', color:'#9a9384', on:false },
+  { id:'wt',  label:'WEIGHT', color:'#d4a843', on:false },
+];
 let tab = 'today';
 let selDate = isoToday();
+let range = +(localStorage.getItem('ha_range') || 30);
+let metricState = JSON.parse(localStorage.getItem('ha_metrics') || 'null') || Object.fromEntries(METRICS.map(m => [m.id, m.on]));
 
-function isoToday() { const d = new Date(); return d.toISOString().slice(0,10); }
+function isoToday() { return new Date().toISOString().slice(0,10); }
 function weekdayOf(iso) { return WEEKDAYS[(new Date(iso + 'T12:00:00').getDay() + 6) % 7]; }
 function mondayOf(iso) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0,10); }
 function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
 function fmtDate(iso) { return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase(); }
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+const $ = id => document.getElementById(id);
 
 /* ---------------- gist sync ---------------- */
 async function gistGet() {
   const s = LS.k;
   if (!s.token || !s.gist) throw new Error('Not configured — open Settings');
-  const r = await fetch('https://api.github.com/gists/' + s.gist, {
-    headers: { Authorization: 'Bearer ' + s.token, Accept: 'application/vnd.github+json' }
-  });
+  const r = await fetch('https://api.github.com/gists/' + s.gist,
+    { headers: { Authorization: 'Bearer ' + s.token, Accept: 'application/vnd.github+json' } });
   if (!r.ok) throw new Error('GitHub ' + r.status);
   return r.json();
 }
@@ -170,7 +205,7 @@ async function pullAppdata() {
   const g = await gistGet();
   const f = g.files['appdata.json'];
   if (!f) throw new Error('appdata.json missing in gist');
-  let content = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
+  const content = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
   store.appdata = JSON.parse(content);
   return store.appdata;
 }
@@ -197,12 +232,11 @@ async function syncAll(statusEl) {
   } catch (e) { say('Offline / ' + e.message + (store.queue.length ? ' — ' + store.queue.length + ' queued' : '')); }
 }
 
-/* ---------------- timer ---------------- */
-let timer = { end: 0, total: 0, iv: null };
-const $ = id => document.getElementById(id);
-function startTimer(sec, label) {
+/* ---------------- timer (with rest-extension tracking) ---------------- */
+let timer = { end: 0, total: 0, iv: null, ei: null, si: null, date: null, ext: 0 };
+function startTimer(sec, label, date, ei, si) {
   clearInterval(timer.iv);
-  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200) };
+  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200), ei, si, date, ext: 0 };
   $('timerlabel').textContent = label || 'REST';
   $('timerbar').classList.add('on');
   tickTimer();
@@ -237,17 +271,37 @@ function beep() {
   if (navigator.vibrate) navigator.vibrate([200, 80, 200]);
 }
 document.addEventListener('click', e => {
-  if (e.target.id === 't30') timer.end += 30000;
+  if (e.target.id === 't30') {
+    timer.end += 30000;
+    timer.ext += 30;
+    // auto-flag the rest extension on the exercise — structured so the coach can count it
+    if (timer.date != null && timer.ei != null) {
+      const d = store.draft(timer.date);
+      if (d && d.exercises[timer.ei]) {
+        const ex = d.exercises[timer.ei];
+        ex.rest_ext = ex.rest_ext || {};
+        ex.rest_ext[timer.si + 1] = (ex.rest_ext[timer.si + 1] || 0) + 30;
+        store.setDraft(timer.date, d);
+        if (tab === 'today') renderToday();
+      }
+    }
+  }
   if (e.target.id === 'tskip') { clearInterval(timer.iv); $('timerbar').classList.remove('on'); }
 });
+function restExtNote(ex) {
+  const e = ex.rest_ext || {};
+  const sets = Object.keys(e).sort();
+  if (!sets.length) return '';
+  const total = sets.reduce((a, k) => a + e[k], 0);
+  return `rest+${total}s (set ${sets.join(',')})`;
+}
 
-/* ---------------- draft (per-day in-progress log) ---------------- */
+/* ---------------- draft ---------------- */
 function getDraft(date, sessName, sess) {
   let d = store.draft(date);
   if (d && d.session === sessName) return d;
   d = { date, session: sessName, exercises: sess.exercises.map(ex => ({
-    name: ex.name, equip: ex.type, rest: ex.rest_sec, rpe: '', note: '',
-    skipped: false,
+    name: ex.name, equip: ex.type, rest: ex.rest_sec, rpe: '', note: '', rest_ext: {},
     sets: Array.from({ length: ex.sets }, () => ({ reps: '', weight: ex.prefill_weight ?? '', done: false }))
   })) };
   store.setDraft(date, d);
@@ -261,24 +315,19 @@ function render() {
   else if (tab === 'dash') renderDash();
   else renderSettings();
 }
-
 function header(title, accent, sub) {
   const ad = store.appdata;
   return `<div class="eyebrow"><span>RECOMP · ${ad ? esc(ad.block_label) : 'HEALTH AGENT'}</span><span class="date">${fmtDate(selDate)}</span></div>
-  <h1 class="big">TODAY<span class="accent" style="color:${accent}">${esc(title)}</span></h1>
+  <h1 class="big">${selDate === isoToday() ? 'TODAY' : weekdayOf(selDate).toUpperCase()}<span class="accent" style="color:${accent}">${esc(title)}</span></h1>
   <div class="subtitle">${esc(sub || '')}</div>`;
 }
-
 function chipsRow() {
-  const mon = mondayOf(selDate);
-  const today = isoToday();
+  const mon = mondayOf(selDate), today = isoToday();
   return `<div class="chips">` + WEEKDAYS.map((w, i) => {
     const d = addDays(mon, i);
     return `<button class="chip ${d === selDate ? 'sel' : ''} ${d === today ? 'today' : ''}" data-date="${d}">${w.toUpperCase()}</button>`;
   }).join('') + `</div>`;
 }
-
-function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
 function renderToday() {
   const ad = store.appdata;
@@ -293,11 +342,26 @@ function renderToday() {
   const accent = ACCENTS[sessName] || 'var(--gold)';
   document.body.style.setProperty('--acc', accent);
 
+  /* past-day logged history — read-only view of what's in the lift log */
+  const detail = (ad.logged_detail || {})[selDate];
+  const draftExisting = store.draft(selDate);
+  const draftHasWork = draftExisting && draftExisting.exercises.some(e => e.sets.some(s => s.done));
+  if (detail && !draftHasWork) {
+    v.innerHTML = header(detail.session, ACCENTS[detail.session] || accent, 'LOGGED · IN THE BOOKS') + chipsRow() +
+      `<div class="meta"><span>SYNCED TO LIFT LOG</span><b>${detail.ex.length} EXERCISES</b></div>
+      <div class="card">` + detail.ex.map(e => `
+        <div class="hrow"><div><div class="nm">${esc(e.n)}</div>${e.note && !/^Week \d/.test(e.note) ? `<div class="hnote">${esc(e.note)}</div>` : ''}</div>
+        <div class="det">${esc(e.w)} × ${esc(e.r)}${e.rpe ? ' @' + esc(e.rpe) : ''}</div></div>`).join('') +
+      `</div>`;
+    bindCommon();
+    return;
+  }
+
   if (sessName === 'REST') {
     v.innerHTML = header('FULL REST', accent, 'Recover. Eat. Sleep.') + chipsRow() + `
       <div class="restcard"><div class="emoji">🌿</div><h2>Full Rest</h2></div>
-      <div class="tip"><b>Sleep is training.</b> One short night barely dents strength — but back-to-back short nights wreck your compound lifts. Protect 7+.</div>
-      <div class="tip"><b>Protein still matters.</b> ${esc(ad.protein_line || '155–170 g today: palm of protein every meal, slow protein (Greek yogurt / cottage cheese) before bed.')}</div>
+      <div class="tip"><b>Sleep is training.</b> One short night barely dents strength — back-to-back short nights wreck your compounds. Protect 7+.</div>
+      <div class="tip"><b>Protein still matters.</b> ${esc(ad.protein_line || '')}</div>
       <div class="tip"><b>Tomorrow:</b> ${esc(ad.schedule[WEEKDAYS[(WEEKDAYS.indexOf(wd) + 1) % 7]])}. Set out the DBs tonight.</div>`;
     bindCommon();
     return;
@@ -306,19 +370,18 @@ function renderToday() {
   const sess = ad.sessions[sessName];
   if (!sess) { v.innerHTML = header(sessName, accent, '') + chipsRow() + '<div class="card">Session not in program data — sync in Settings.</div>'; bindCommon(); return; }
   const draft = getDraft(selDate, sessName, sess);
-  const totalSets = draft.exercises.reduce((a, e) => a + (e.skipped ? 0 : e.sets.length), 0);
+  const totalSets = draft.exercises.reduce((a, e) => a + e.sets.length, 0);
   const doneSets = draft.exercises.reduce((a, e) => a + e.sets.filter(s => s.done).length, 0);
-  const alreadyLogged = (ad.logged_dates || []).includes(selDate);
   const queued = store.queue.some(s => s.date === selDate);
 
   let html = header(sess.title || sessName, accent, sess.focus || '') + chipsRow() +
     `<div class="meta"><span>SETS COMPLETED</span><b>${doneSets} / ${totalSets}</b></div>`;
-  if (alreadyLogged) html += `<div class="tip">✅ <b>This day is already in the lift log.</b> Re-saving will be ignored by the Mac (idempotent), so you're safe either way.</div>`;
-  if (queued) html += `<div class="tip">📤 <b>Queued.</b> This session is saved on the phone and will upload on next sync.</div>`;
+  if (queued) html += `<div class="tip">📤 <b>Queued.</b> Will upload on next sync.</div>`;
 
   draft.exercises.forEach((ex, ei) => {
     const pex = sess.exercises[ei] || {};
-    html += `<div class="card ${ex.skipped ? 'skipped' : ''}" data-ei="${ei}">
+    const extNote = restExtNote(ex);
+    html += `<div class="card" data-ei="${ei}">
       <div class="exhead"><div><div class="exname">${esc(ex.name)}</div>
       ${pex.cue ? `<div class="excue">${esc(pex.cue)}</div>` : ''}
       ${pex.hint ? `<div class="excue" style="color:${accent}">${esc(pex.hint)}</div>` : ''}</div>
@@ -330,8 +393,8 @@ function renderToday() {
         <input inputmode="decimal" data-f="weight" value="${esc(s.weight)}" ${ex.equip === 'BW' ? 'placeholder="—"' : ''}>
         <button class="checkbtn">✓</button></div>`).join('') +
       `</div><div class="exfoot">
-        <span class="restpill">⏱ rest ${ex.rest || 90}s</span>
-        <span class="rpewrap">RPE <select data-f="rpe">${['', 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10].map(r => `<option ${String(ex.rpe) === String(r) ? 'selected' : ''}>${r}</option>`).join('')}</select></span>
+        <span class="restpill ${extNote ? 'ext' : ''}">⏱ ${ex.rest || 90}s${extNote ? ' · ' + esc(extNote) : ''}</span>
+        <span class="rpewrap">RPE <select data-f="rpe">${['',6,6.5,7,7.5,8,8.5,9,9.5,10].map(r => `<option ${String(ex.rpe) === String(r) ? 'selected' : ''}>${r}</option>`).join('')}</select></span>
         <input class="noteinput" data-f="note" placeholder="note" value="${esc(ex.note)}">
       </div></div>`;
   });
@@ -341,7 +404,6 @@ function renderToday() {
   <div class="status" id="tstatus"></div>`;
   v.innerHTML = html;
 
-  /* bindings */
   v.querySelectorAll('.card[data-ei]').forEach(card => {
     const ei = +card.dataset.ei;
     card.querySelectorAll('.setrow').forEach(row => {
@@ -352,7 +414,7 @@ function renderToday() {
         st.done = !st.done;
         if (st.done && !st.reps) st.reps = String((sess.exercises[ei] || {}).rep_low || '');
         store.setDraft(selDate, d);
-        if (st.done) startTimer(d.exercises[ei].rest || 90, 'REST — ' + d.exercises[ei].name.toUpperCase());
+        if (st.done) startTimer(d.exercises[ei].rest || 90, 'REST — ' + d.exercises[ei].name.toUpperCase(), selDate, ei, si);
         renderToday();
       };
       row.querySelectorAll('input').forEach(inp => inp.onchange = () => {
@@ -370,9 +432,13 @@ function renderToday() {
     const payload = {
       id: d.date + '|' + d.session + '|' + Date.now(),
       date: d.date, session: d.session, source: 'phone-app',
-      exercises: d.exercises.filter(e => !e.skipped && e.sets.some(s => s.done && s.reps))
-        .map(e => ({ name: e.name, equip: e.equip, rest: e.rest, rpe: e.rpe, note: e.note,
-                     sets: e.sets.filter(s => s.done && s.reps).map(s => ({ reps: s.reps, weight: s.weight })) }))
+      exercises: d.exercises.filter(e => e.sets.some(s => s.done && s.reps))
+        .map(e => {
+          const ext = restExtNote(e);
+          const note = [e.note, ext].filter(Boolean).join(' · ');
+          return { name: e.name, equip: e.equip, rest: e.rest, rpe: e.rpe, note,
+                   sets: e.sets.filter(s => s.done && s.reps).map(s => ({ reps: s.reps, weight: s.weight })) };
+        })
     };
     if (!payload.exercises.length) { $('tstatus').textContent = 'Nothing logged yet.'; return; }
     const q = store.queue.filter(s => s.date !== d.date);
@@ -385,25 +451,109 @@ function renderToday() {
   bindCommon();
 }
 
+/* ---------------- dashboard ---------------- */
+function drawChart(hist) {
+  const cv = $('chart');
+  if (!cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+  const rows = hist.slice(-range);
+  if (rows.length < 2) return;
+  const padL = 6, padR = 6, padT = 10, padB = 22;
+  const x = i => padL + (W - padL - padR) * i / (rows.length - 1);
+  // gridlines
+  ctx.strokeStyle = '#221f17'; ctx.lineWidth = 1;
+  [0.25, 0.5, 0.75].forEach(f => {
+    ctx.beginPath(); ctx.moveTo(padL, padT + (H - padT - padB) * f); ctx.lineTo(W - padR, padT + (H - padT - padB) * f); ctx.stroke();
+  });
+  // x labels (first, middle, last)
+  ctx.fillStyle = '#8d877a'; ctx.font = '10px -apple-system'; ctx.textAlign = 'center';
+  [0, Math.floor((rows.length - 1) / 2), rows.length - 1].forEach(i => {
+    ctx.fillText(rows[i].d.slice(5), x(i), H - 7);
+  });
+  // series — each normalized to its own min/max within range
+  for (const m of METRICS) {
+    if (!metricState[m.id]) continue;
+    const vals = rows.map(r => r[m.id]);
+    const nums = vals.filter(v => v != null);
+    if (nums.length < 2) continue;
+    let lo = Math.min(...nums), hi = Math.max(...nums);
+    if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+    const y = v => padT + (H - padT - padB) * (1 - (v - lo) / (hi - lo));
+    ctx.strokeStyle = m.color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    let started = false;
+    vals.forEach((v, i) => {
+      if (v == null) { started = false; return; }
+      if (!started) { ctx.moveTo(x(i), y(v)); started = true; }
+      else ctx.lineTo(x(i), y(v));
+    });
+    ctx.stroke();
+  }
+}
 function renderDash() {
   const ad = store.appdata;
   const v = $('view');
   if (!ad || !ad.readiness) { v.innerHTML = '<div class="restcard"><div class="emoji">📊</div><h2>No data</h2><p style="color:var(--mut)">Sync in Settings first.</p></div>'; return; }
   const r = ad.readiness;
+  const hist = ad.history || [];
+  const rows = hist.slice(-range);
+  const latestOf = id => { for (let i = rows.length - 1; i >= 0; i--) if (rows[i][id] != null) return rows[i][id]; return null; };
+  const fmtV = (id, val) => val == null ? '—' : id === 'st' ? (val / 1000).toFixed(1) + 'k' : id === 'slp' ? val.toFixed(1) + 'h' : id === 'wt' ? val.toFixed(1) : Math.round(val);
+  const a = ad.adherence || {};
+  const wkly = ad.weekly || [];
+
   v.innerHTML = `
   <div class="eyebrow"><span>DASHBOARD</span><span class="date">DATA → ${esc(r.data_through || '?')}</span></div>
   <div class="card verdict"><div class="v ${r.cls}">${esc(r.verdict)}</div>
     <div class="adv">${esc(r.advice)}</div>
     <div class="sigs">${(r.signals || []).map(s => `<span class="sig s${s[0]}">${esc(s[1])}</span>`).join('')}</div></div>
-  <h3 class="sec">Last 7 days · RHR / HRV / Sleep / Steps</h3>
-  <div class="card"><div class="strip">${(ad.strip7 || []).map(s =>
-    `<div class="day"><div class="dd">${esc(s.d)}</div><div>${esc(s.rhr)}</div><div>${esc(s.hrv)}</div><div>${esc(s.slp)}</div><div>${esc(s.steps)}</div></div>`).join('')}</div></div>
-  <h3 class="sec">Double progression</h3>
-  <div class="card bumps">${(ad.progress || []).map(p =>
-    `<div class="row"><div><b>${esc(p.n)}</b><br><span style="color:var(--mut);font-size:12px">${esc(p.last)}</span></div><div class="st ${p.cls}">${esc(p.status)}</div></div>`).join('') || '<div style="color:var(--mut)">—</div>'}</div>
+
+  <h3 class="sec">Trends</h3>
+  <div class="card">
+    <div class="rangerow">${[7,14,30,60,90].map(n => `<button class="rg ${range === n ? 'on' : ''}" data-range="${n}">${n}d</button>`).join('')}</div>
+    <div class="togglerow">${METRICS.map(m => `<button class="tg c-${m.id} ${metricState[m.id] ? 'on' : ''}" data-m="${m.id}">${m.label}</button>`).join('')}</div>
+    <canvas id="chart"></canvas>
+    <div class="legend">${METRICS.filter(m => metricState[m.id]).map(m =>
+      `<span><span class="dot" style="background:${m.color}"></span>${m.label} <b>${fmtV(m.id, latestOf(m.id))}</b></span>`).join('')}</div>
+  </div>
+
+  <h3 class="sec">This block</h3>
+  <div class="statrow">
+    <div class="stat"><div class="num" style="color:var(--green)">${a.pct ?? '—'}%</div><div class="lbl">Adherence</div></div>
+    <div class="stat"><div class="num" style="color:var(--gold)">${a.streak ?? '—'}</div><div class="lbl">Session streak</div></div>
+  </div>
+
+  <h3 class="sec">Weekly sets vs plan</h3>
+  <div class="card"><div class="wkbars">${wkly.map(w => {
+    const pct = Math.min(100, Math.round(100 * w.sets / (w.plan || 1)));
+    return `<div class="wkbar"><div class="val">${w.sets}</div>
+      <div class="bar" style="height:${Math.max(8, pct)}%"><div class="fill" style="height:100%"></div></div>
+      <div class="lb">${esc(w.label)}</div></div>`;
+  }).join('') || '<div style="color:var(--mut);font-size:13px">—</div>'}</div>
+  <div class="scrollhint">PLAN = ${wkly.length ? wkly[0].plan : '—'} SETS/WK · SESSIONS ${wkly.map(w => w.done + '/' + w.planned).join(' · ')}</div></div>
+
   <h3 class="sec">Weight</h3>
   <div class="card" style="font-size:13.5px">${esc(ad.weight_line || '—')}</div>
+
+  <h3 class="sec">Double progression</h3>
+  <div class="card"><div class="progbox bumps">${(ad.progress || []).map(p =>
+    `<div class="row"><div><b>${esc(p.n)}</b><br><span style="color:var(--mut);font-size:12px">${esc(p.last)}</span></div><div class="st ${p.cls}">${esc(p.status)}</div></div>`).join('') || '—'}</div>
+  <div class="scrollhint">SCROLL FOR ALL LIFTS ↓</div></div>
   <div class="status">Pushed by your Mac at ${esc(ad.generated || '?')}</div>`;
+
+  v.querySelectorAll('[data-range]').forEach(b => b.onclick = () => {
+    range = +b.dataset.range; localStorage.setItem('ha_range', range); renderDash();
+  });
+  v.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
+    metricState[b.dataset.m] = !metricState[b.dataset.m];
+    localStorage.setItem('ha_metrics', JSON.stringify(metricState)); renderDash();
+  });
+  drawChart(hist);
   bindCommon();
 }
 
@@ -420,8 +570,8 @@ function renderSettings() {
     <button class="bigbtn" id="saveset">Save & test</button>
     <div class="status" id="sstatus">${store.queue.length ? store.queue.length + ' session(s) queued for upload' : ''}</div>
   </div>
-  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — it is never part of the hosted page. Logged sets queue locally and upload when you have signal; your Mac ingests them on its 7:42 am and 9:06 pm runs.</div>
-  <div class="tip"><b>Install as app:</b> in Safari tap Share → Add to Home Screen.</div>`;
+  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — never part of the hosted page. Logged sets queue locally and upload when you have signal; your Mac ingests them at 7:42 am and 9:06 pm.</div>
+  <div class="tip"><b>Install as app:</b> Safari → Share → Add to Home Screen.</div>`;
   $('saveset').onclick = async () => {
     LS.k = { token: $('tok').value.trim(), gist: $('gid').value.trim() };
     $('sstatus').textContent = 'Testing…';
