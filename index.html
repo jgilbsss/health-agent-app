@@ -47,7 +47,7 @@ h1.big .accent { display:block; }
 .setrow.done .checkbtn { background:var(--acc,var(--gold)); border-color:var(--acc,var(--gold)); color:#0d0c0a; }
 .exfoot { display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
 .rpewrap { font-size:12px; color:var(--mut); display:flex; align-items:center; gap:6px; }
-select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
+select,.noteinput,textarea.f { font:inherit; font-size:13px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
 .noteinput { flex:1; min-width:110px; }
 .restpill { font-size:11px; letter-spacing:1px; color:var(--mut); border:1px solid var(--line); border-radius:99px; padding:5px 12px; text-transform:uppercase; }
 .restpill.ext { color:var(--orange); border-color:#4a3220; }
@@ -60,13 +60,11 @@ select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color
 .restcard h2 { font-size:30px; letter-spacing:2px; color:var(--mut); margin:14px 0 6px; text-transform:uppercase; }
 .tip { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 15px; font-size:13.5px; line-height:1.5; margin-bottom:10px; text-align:left; color:var(--txt); }
 .tip b { color:var(--gold); }
-/* logged (read-only history) */
 .hrow { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:14px; align-items:baseline; }
 .hrow:last-child { border:none; }
 .hrow .nm { font-weight:650; }
 .hrow .det { color:var(--mut); font-size:12.5px; white-space:nowrap; }
 .hnote { font-size:11.5px; color:var(--orange); margin-top:2px; }
-/* timer bar */
 #timerbar { position:fixed; left:0; right:0; bottom:0; background:rgba(13,12,10,.96); backdrop-filter:blur(10px); border-top:1px solid var(--line); padding:10px 16px calc(var(--safe-bot) + 10px); display:none; z-index:50; }
 #timerbar.on { display:block; }
 .timerrow { max-width:640px; margin:0 auto; display:flex; align-items:center; gap:12px; }
@@ -75,11 +73,9 @@ select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color
 .timerlabel { flex:1; font-size:11px; letter-spacing:1.5px; color:var(--mut); text-transform:uppercase; line-height:1.5; }
 .tbtn { font:inherit; font-size:13px; font-weight:700; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:11px; padding:10px 14px; }
 #timerprog { position:absolute; top:-1px; left:0; height:2px; background:var(--gold); width:0%; }
-/* tabs */
 #tabs { position:fixed; left:0; right:0; bottom:0; background:rgba(13,12,10,.96); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; z-index:40; padding-bottom:var(--safe-bot); }
-#tabs button { flex:1; font:inherit; font-size:11px; letter-spacing:1px; font-weight:700; text-transform:uppercase; color:var(--mut); background:none; border:none; padding:13px 0 10px; }
+#tabs button { flex:1; font:inherit; font-size:10px; letter-spacing:.8px; font-weight:700; text-transform:uppercase; color:var(--mut); background:none; border:none; padding:13px 0 10px; }
 #tabs button.sel { color:var(--gold); }
-/* dashboard */
 .verdict { text-align:center; padding:20px 16px; }
 .verdict .v { font-size:28px; font-weight:850; letter-spacing:.5px; text-transform:uppercase; }
 .v.green { color:var(--green); } .v.yellow { color:var(--gold); } .v.red { color:var(--red); } .v.stale { color:var(--mut); }
@@ -96,7 +92,9 @@ h3.sec { font-size:11px; letter-spacing:2px; color:var(--mut); text-transform:up
 .rangerow { display:flex; gap:6px; margin-bottom:10px; }
 .rg { flex:1; font-size:12px; font-weight:700; border:1px solid var(--line); color:var(--mut); border-radius:10px; padding:8px 0; background:transparent; text-align:center; }
 .rg.on { color:var(--gold); border-color:var(--gold); }
-#chart { width:100%; height:230px; display:block; }
+#chart { width:100%; height:230px; display:block; touch-action:pan-y; }
+#scrub { min-height:20px; font-size:12.5px; color:var(--mut); text-align:center; margin-bottom:4px; font-variant-numeric:tabular-nums; }
+#scrub b { color:var(--txt); }
 .legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font-size:11.5px; color:var(--mut); }
 .legend b { color:var(--txt); }
 .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:1px; }
@@ -104,19 +102,61 @@ h3.sec { font-size:11px; letter-spacing:2px; color:var(--mut); text-transform:up
 .stat { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; text-align:center; }
 .stat .num { font-size:26px; font-weight:850; }
 .stat .lbl { font-size:10.5px; letter-spacing:1.5px; color:var(--mut); text-transform:uppercase; margin-top:3px; }
-.wkbars { display:flex; gap:10px; align-items:flex-end; height:110px; padding-top:6px; }
+.wkbars { display:flex; gap:8px; align-items:flex-end; height:110px; padding-top:6px; }
 .wkbar { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; justify-content:flex-end; }
-.wkbar .bar { width:100%; max-width:46px; border-radius:8px 8px 3px 3px; background:var(--card2); border:1px solid var(--line); position:relative; overflow:hidden; }
-.wkbar .fill { position:absolute; bottom:0; left:0; right:0; background:var(--gold); }
-.wkbar .lb { font-size:10px; color:var(--mut); letter-spacing:.5px; }
-.wkbar .val { font-size:10.5px; color:var(--txt); font-weight:700; }
+.wkbar .bar { width:100%; max-width:42px; border-radius:7px 7px 3px 3px; background:var(--gold); opacity:.9; }
+.wkbar.dim .bar { background:var(--card2); border:1px solid var(--line); }
+.wkbar .lb { font-size:9.5px; color:var(--mut); letter-spacing:.3px; }
+.wkbar .val { font-size:10px; color:var(--txt); font-weight:700; }
+.cal { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.cal .hd { text-align:center; font-size:9.5px; color:var(--mut); letter-spacing:1px; }
+.cal .c { aspect-ratio:1; border-radius:8px; background:var(--card2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:9px; color:transparent; }
+.cal .c.green { background:#234a31; border-color:#2c5a3b; } .cal .c.greenish { background:#2c4a2a44; border-color:#2c4a36; }
+.cal .c.yellow { background:#4a3f1d; border-color:#5a4d24; } .cal .c.red { background:#4a2424; border-color:#5a2c2c; }
+.cal .c.today { outline:2px solid var(--gold); color:var(--gold); font-weight:800; }
+.callegend { display:flex; gap:12px; justify-content:center; font-size:10.5px; color:var(--mut); margin-top:10px; }
+.sleepbars { display:flex; gap:8px; align-items:flex-end; height:80px; margin-top:10px; }
+.slb { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+.slb .bar { width:100%; max-width:36px; border-radius:6px 6px 2px 2px; }
+.slb .lb { font-size:9px; color:var(--mut); }
+.slb .v { font-size:9.5px; color:var(--txt); font-weight:700; }
 .progbox { max-height:250px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .bumps .row { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
 .bumps .row:last-child { border:none; }
 .bumps .st { font-weight:800; white-space:nowrap; }
 .st.bump { color:var(--green); } .st.work { color:var(--blue); } .st.wait { color:var(--mut); }
 .scrollhint { text-align:center; font-size:10px; color:var(--mut); letter-spacing:1px; margin-top:6px; }
-/* settings */
+/* lifts tab */
+.liftrow { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:12px 0; border-bottom:1px solid var(--line); }
+.liftrow:last-child { border:none; }
+.liftrow .nm { font-weight:700; font-size:15px; }
+.liftrow .sub { font-size:11.5px; color:var(--mut); margin-top:2px; }
+.liftrow .arrow { color:var(--mut); font-size:18px; }
+.backbtn { font:inherit; font-size:13px; font-weight:700; color:var(--gold); background:none; border:none; padding:6px 0 12px; letter-spacing:1px; }
+#liftchart { width:100%; height:150px; display:block; }
+/* coach */
+.recap { font-size:14px; line-height:1.65; }
+.recap p { margin-bottom:10px; }
+.recap b { color:var(--gold); }
+.msgbox { width:100%; min-height:90px; resize:vertical; margin-bottom:8px; border-radius:12px; }
+.msgqueued { font-size:12px; color:var(--orange); padding:6px 0; }
+/* plan */
+.phase { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); align-items:baseline; }
+.phase:last-child { border:none; }
+.phase .wk { font-size:11px; font-weight:800; color:var(--mut); min-width:58px; letter-spacing:.5px; }
+.phase .nm { font-weight:700; font-size:14px; }
+.phase .nt { font-size:12px; color:var(--mut); margin-top:2px; }
+.phase.cur { background:linear-gradient(90deg,#d4a84311,transparent); border-radius:8px; margin:0 -8px; padding:10px 8px; }
+.phase.cur .wk { color:var(--gold); }
+.sessacc { border-bottom:1px solid var(--line); }
+.sessacc:last-child { border:none; }
+.sessacc .head { display:flex; justify-content:space-between; align-items:center; padding:13px 0; font-weight:800; font-size:15px; }
+.sessacc .head .day { font-size:11px; color:var(--mut); letter-spacing:1px; font-weight:700; }
+.sessacc .body { display:none; padding-bottom:12px; }
+.sessacc.open .body { display:block; }
+.pexrow { padding:8px 0; border-top:1px solid #221f17; font-size:13.5px; }
+.pexrow .tg2 { color:var(--mut); font-size:12px; }
+.mnote { font-size:11.5px; color:var(--blue); margin-top:3px; line-height:1.45; }
 label.f { display:block; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--mut); margin:14px 0 6px; }
 input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:12px; padding:12px; }
 .queuebadge { font-size:11px; color:var(--orange); }
@@ -136,15 +176,18 @@ input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); col
 
 <div id="tabs">
   <button data-tab="today" class="sel">Today</button>
-  <button data-tab="dash">Dashboard</button>
-  <button data-tab="settings">Settings</button>
+  <button data-tab="dash">Dash</button>
+  <button data-tab="lifts">Lifts</button>
+  <button data-tab="coach">Coach</button>
+  <button data-tab="plan">Plan</button>
+  <button data-tab="settings">Setup</button>
 </div>
 
 <script>
 'use strict';
-/* Health Agent phone app v2 — gist sync (appdata.json / inbox.json).
-   v2: dashboard chart w/ range + metric toggles, weekly volume vs plan,
-   adherence + streak, weight rate, past-day logged history, auto rest-extension notes. */
+/* Health Agent phone app v3 — adds: chart scrubber + single-metric y-axis,
+   tonnage trend, green-day calendar, sleep debt, Lifts/Coach/Plan tabs,
+   coach messaging via inbox.json. */
 
 const LS = {
   get k() { return JSON.parse(localStorage.getItem('ha_settings') || '{}'); },
@@ -155,6 +198,8 @@ const store = {
   set appdata(v) { localStorage.setItem('ha_appdata', JSON.stringify(v)); },
   get queue() { return JSON.parse(localStorage.getItem('ha_queue') || '[]'); },
   set queue(v) { localStorage.setItem('ha_queue', JSON.stringify(v)); },
+  get msgq() { return JSON.parse(localStorage.getItem('ha_msgq') || '[]'); },
+  set msgq(v) { localStorage.setItem('ha_msgq', JSON.stringify(v)); },
   draft(date) { return JSON.parse(localStorage.getItem('ha_draft_' + date) || 'null'); },
   setDraft(date, v) { localStorage.setItem('ha_draft_' + date, JSON.stringify(v)); },
 };
@@ -163,16 +208,18 @@ const WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const ACCENTS = { 'Push A':'#d4a843','Push B':'#d4a843','Pull A':'#cfc9bd','Pull B':'#cfc9bd',
                   'Legs A':'#e06c3a','Legs B':'#e06c3a','REST':'#5cb87a' };
 const METRICS = [
-  { id:'rhr', label:'RHR', color:'#e05a5a', on:true },
-  { id:'hrv', label:'HRV', color:'#5aa9e6', on:true },
-  { id:'slp', label:'SLEEP', color:'#b08fe0', on:false },
-  { id:'st',  label:'STEPS', color:'#9a9384', on:false },
-  { id:'wt',  label:'WEIGHT', color:'#d4a843', on:false },
+  { id:'rhr', label:'RHR', color:'#e05a5a', unit:'bpm' },
+  { id:'hrv', label:'HRV', color:'#5aa9e6', unit:'ms' },
+  { id:'slp', label:'SLEEP', color:'#b08fe0', unit:'h' },
+  { id:'st',  label:'STEPS', color:'#9a9384', unit:'' },
+  { id:'wt',  label:'WEIGHT', color:'#d4a843', unit:'lb' },
 ];
 let tab = 'today';
 let selDate = isoToday();
+let selLift = null;
 let range = +(localStorage.getItem('ha_range') || 30);
-let metricState = JSON.parse(localStorage.getItem('ha_metrics') || 'null') || Object.fromEntries(METRICS.map(m => [m.id, m.on]));
+let metricState = JSON.parse(localStorage.getItem('ha_metrics') || 'null') || { rhr:true, hrv:true, slp:false, st:false, wt:false };
+let scrubIdx = null, chartRows = [];
 
 function isoToday() { return new Date().toISOString().slice(0,10); }
 function weekdayOf(iso) { return WEEKDAYS[(new Date(iso + 'T12:00:00').getDay() + 6) % 7]; }
@@ -180,12 +227,13 @@ function mondayOf(iso) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getD
 function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
 function fmtDate(iso) { return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase(); }
 function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function norm(s) { return String(s).replace(/\(.*?\)/g,'').toLowerCase().replace(/[^a-z]/g,''); }
 const $ = id => document.getElementById(id);
 
 /* ---------------- gist sync ---------------- */
 async function gistGet() {
   const s = LS.k;
-  if (!s.token || !s.gist) throw new Error('Not configured — open Settings');
+  if (!s.token || !s.gist) throw new Error('Not configured — open Setup');
   const r = await fetch('https://api.github.com/gists/' + s.gist,
     { headers: { Authorization: 'Bearer ' + s.token, Accept: 'application/vnd.github+json' } });
   if (!r.ok) throw new Error('GitHub ' + r.status);
@@ -210,16 +258,20 @@ async function pullAppdata() {
   return store.appdata;
 }
 async function pushQueue() {
-  const q = store.queue;
-  if (!q.length) return 0;
+  const q = store.queue, mq = store.msgq;
+  if (!q.length && !mq.length) return 0;
   const g = await gistGet();
-  let inbox = { sessions: [] };
-  try { inbox = JSON.parse(g.files['inbox.json'] ? g.files['inbox.json'].content : '{"sessions":[]}'); } catch (e) {}
+  let inbox = { sessions: [], messages: [] };
+  try { inbox = JSON.parse(g.files['inbox.json'] ? g.files['inbox.json'].content : '{}'); } catch (e) {}
+  inbox.sessions = inbox.sessions || []; inbox.messages = inbox.messages || [];
   const have = new Set(inbox.sessions.map(s => s.id));
   for (const s of q) if (!have.has(s.id)) inbox.sessions.push(s);
+  const haveM = new Set(inbox.messages.map(m => m.id));
+  for (const m of mq) if (!haveM.has(m.id)) inbox.messages.push(m);
   await gistPatch({ 'inbox.json': { content: JSON.stringify(inbox, null, 1) } });
-  store.queue = [];
-  return q.length;
+  const n = q.length + mq.length;
+  store.queue = []; store.msgq = [];
+  return n;
 }
 async function syncAll(statusEl) {
   const say = m => { if (statusEl) statusEl.textContent = m; };
@@ -227,16 +279,16 @@ async function syncAll(statusEl) {
     say('Syncing…');
     const n = await pushQueue();
     await pullAppdata();
-    say((n ? 'Sent ' + n + ' session(s). ' : '') + 'Up to date ✓');
+    say((n ? 'Sent ' + n + ' item(s). ' : '') + 'Up to date ✓');
     render();
-  } catch (e) { say('Offline / ' + e.message + (store.queue.length ? ' — ' + store.queue.length + ' queued' : '')); }
+  } catch (e) { say('Offline / ' + e.message + (store.queue.length + store.msgq.length ? ' — ' + (store.queue.length + store.msgq.length) + ' queued' : '')); }
 }
 
-/* ---------------- timer (with rest-extension tracking) ---------------- */
-let timer = { end: 0, total: 0, iv: null, ei: null, si: null, date: null, ext: 0 };
+/* ---------------- timer ---------------- */
+let timer = { end:0, total:0, iv:null, ei:null, si:null, date:null };
 function startTimer(sec, label, date, ei, si) {
   clearInterval(timer.iv);
-  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200), ei, si, date, ext: 0 };
+  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200), ei, si, date };
   $('timerlabel').textContent = label || 'REST';
   $('timerbar').classList.add('on');
   tickTimer();
@@ -273,8 +325,6 @@ function beep() {
 document.addEventListener('click', e => {
   if (e.target.id === 't30') {
     timer.end += 30000;
-    timer.ext += 30;
-    // auto-flag the rest extension on the exercise — structured so the coach can count it
     if (timer.date != null && timer.ei != null) {
       const d = store.draft(timer.date);
       if (d && d.exercises[timer.ei]) {
@@ -308,12 +358,11 @@ function getDraft(date, sessName, sess) {
   return d;
 }
 
-/* ---------------- views ---------------- */
+/* ---------------- shell ---------------- */
 function render() {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('sel', b.dataset.tab === tab));
-  if (tab === 'today') renderToday();
-  else if (tab === 'dash') renderDash();
-  else renderSettings();
+  ({ today: renderToday, dash: renderDash, lifts: renderLifts, coach: renderCoach,
+     plan: renderPlan, settings: renderSettings }[tab] || renderToday)();
 }
 function header(title, accent, sub) {
   const ad = store.appdata;
@@ -328,13 +377,17 @@ function chipsRow() {
     return `<button class="chip ${d === selDate ? 'sel' : ''} ${d === today ? 'today' : ''}" data-date="${d}">${w.toUpperCase()}</button>`;
   }).join('') + `</div>`;
 }
+function bindCommon() {
+  document.querySelectorAll('.chip[data-date]').forEach(c => c.onclick = () => { selDate = c.dataset.date; renderToday(); });
+}
 
+/* ---------------- TODAY ---------------- */
 function renderToday() {
   const ad = store.appdata;
   const v = $('view');
   if (!ad) {
     v.innerHTML = `<div class="restcard"><div class="emoji">📡</div><h2>No data yet</h2>
-      <p style="color:var(--mut);font-size:13.5px">Open Settings, add your token + gist ID, then Sync.</p></div>`;
+      <p style="color:var(--mut);font-size:13.5px">Open Setup, add your token + gist ID, then Sync.</p></div>`;
     return;
   }
   const wd = weekdayOf(selDate);
@@ -342,7 +395,6 @@ function renderToday() {
   const accent = ACCENTS[sessName] || 'var(--gold)';
   document.body.style.setProperty('--acc', accent);
 
-  /* past-day logged history — read-only view of what's in the lift log */
   const detail = (ad.logged_detail || {})[selDate];
   const draftExisting = store.draft(selDate);
   const draftHasWork = draftExisting && draftExisting.exercises.some(e => e.sets.some(s => s.done));
@@ -350,7 +402,7 @@ function renderToday() {
     v.innerHTML = header(detail.session, ACCENTS[detail.session] || accent, 'LOGGED · IN THE BOOKS') + chipsRow() +
       `<div class="meta"><span>SYNCED TO LIFT LOG</span><b>${detail.ex.length} EXERCISES</b></div>
       <div class="card">` + detail.ex.map(e => `
-        <div class="hrow"><div><div class="nm">${esc(e.n)}</div>${e.note && !/^Week \d/.test(e.note) ? `<div class="hnote">${esc(e.note)}</div>` : ''}</div>
+        <div class="hrow"><div><div class="nm">${esc(e.n)}</div>${e.note ? `<div class="hnote">${esc(e.note)}</div>` : ''}</div>
         <div class="det">${esc(e.w)} × ${esc(e.r)}${e.rpe ? ' @' + esc(e.rpe) : ''}</div></div>`).join('') +
       `</div>`;
     bindCommon();
@@ -368,7 +420,7 @@ function renderToday() {
   }
 
   const sess = ad.sessions[sessName];
-  if (!sess) { v.innerHTML = header(sessName, accent, '') + chipsRow() + '<div class="card">Session not in program data — sync in Settings.</div>'; bindCommon(); return; }
+  if (!sess) { v.innerHTML = header(sessName, accent, '') + chipsRow() + '<div class="card">Session not in program data — sync in Setup.</div>'; bindCommon(); return; }
   const draft = getDraft(selDate, sessName, sess);
   const totalSets = draft.exercises.reduce((a, e) => a + e.sets.length, 0);
   const doneSets = draft.exercises.reduce((a, e) => a + e.sets.filter(s => s.done).length, 0);
@@ -451,7 +503,14 @@ function renderToday() {
   bindCommon();
 }
 
-/* ---------------- dashboard ---------------- */
+/* ---------------- DASH ---------------- */
+function fmtV(id, val) {
+  if (val == null) return '—';
+  if (id === 'st') return (val / 1000).toFixed(1) + 'k';
+  if (id === 'slp') return val.toFixed(1) + 'h';
+  if (id === 'wt') return val.toFixed(1);
+  return String(Math.round(val));
+}
 function drawChart(hist) {
   const cv = $('chart');
   if (!cv) return;
@@ -462,50 +521,117 @@ function drawChart(hist) {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, W, H);
   const rows = hist.slice(-range);
+  chartRows = rows;
   if (rows.length < 2) return;
-  const padL = 6, padR = 6, padT = 10, padB = 22;
+  const active = METRICS.filter(m => metricState[m.id]);
+  const single = active.length === 1 ? active[0] : null;
+  const padL = single ? 38 : 6, padR = 6, padT = 10, padB = 22;
   const x = i => padL + (W - padL - padR) * i / (rows.length - 1);
-  // gridlines
   ctx.strokeStyle = '#221f17'; ctx.lineWidth = 1;
-  [0.25, 0.5, 0.75].forEach(f => {
+  [0, .25, .5, .75, 1].forEach(f => {
     ctx.beginPath(); ctx.moveTo(padL, padT + (H - padT - padB) * f); ctx.lineTo(W - padR, padT + (H - padT - padB) * f); ctx.stroke();
   });
-  // x labels (first, middle, last)
   ctx.fillStyle = '#8d877a'; ctx.font = '10px -apple-system'; ctx.textAlign = 'center';
-  [0, Math.floor((rows.length - 1) / 2), rows.length - 1].forEach(i => {
-    ctx.fillText(rows[i].d.slice(5), x(i), H - 7);
-  });
-  // series — each normalized to its own min/max within range
-  for (const m of METRICS) {
-    if (!metricState[m.id]) continue;
-    const vals = rows.map(r => r[m.id]);
-    const nums = vals.filter(v => v != null);
+  [0, Math.floor((rows.length - 1) / 2), rows.length - 1].forEach(i => ctx.fillText(rows[i].d.slice(5), x(i), H - 7));
+
+  const scales = {};
+  for (const m of active) {
+    const nums = rows.map(r => r[m.id]).filter(v => v != null);
     if (nums.length < 2) continue;
     let lo = Math.min(...nums), hi = Math.max(...nums);
     if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
-    const y = v => padT + (H - padT - padB) * (1 - (v - lo) / (hi - lo));
+    scales[m.id] = { lo, hi };
+  }
+  // single-metric: real y-axis labels in actual units
+  if (single && scales[single.id]) {
+    const { lo, hi } = scales[single.id];
+    ctx.textAlign = 'right'; ctx.fillStyle = single.color; ctx.font = '600 10px -apple-system';
+    [[1, lo], [.5, (lo + hi) / 2], [0, hi]].forEach(([f, val]) =>
+      ctx.fillText(fmtV(single.id, val), padL - 5, padT + (H - padT - padB) * f + 3));
+    ctx.save(); ctx.translate(10, (H - padB) / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center'; ctx.fillText(single.unit || single.label, 0, 0); ctx.restore();
+  }
+  for (const m of active) {
+    const sc = scales[m.id];
+    if (!sc) continue;
+    const y = v => padT + (H - padT - padB) * (1 - (v - sc.lo) / (sc.hi - sc.lo));
     ctx.strokeStyle = m.color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
     ctx.beginPath();
     let started = false;
-    vals.forEach((v, i) => {
+    rows.forEach((r, i) => {
+      const v = r[m.id];
       if (v == null) { started = false; return; }
-      if (!started) { ctx.moveTo(x(i), y(v)); started = true; }
-      else ctx.lineTo(x(i), y(v));
+      if (!started) { ctx.moveTo(x(i), y(v)); started = true; } else ctx.lineTo(x(i), y(v));
     });
     ctx.stroke();
   }
+  // scrub hairline + dots
+  if (scrubIdx != null && rows[scrubIdx]) {
+    const xi = x(scrubIdx);
+    ctx.strokeStyle = '#8d877a'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xi, padT); ctx.lineTo(xi, H - padB); ctx.stroke();
+    ctx.setLineDash([]);
+    for (const m of active) {
+      const sc = scales[m.id], v = rows[scrubIdx][m.id];
+      if (!sc || v == null) continue;
+      const y = padT + (H - padT - padB) * (1 - (v - sc.lo) / (sc.hi - sc.lo));
+      ctx.fillStyle = m.color;
+      ctx.beginPath(); ctx.arc(xi, y, 4, 0, 7); ctx.fill();
+    }
+  }
+}
+function scrubReadout() {
+  const el = $('scrub');
+  if (!el) return;
+  if (scrubIdx == null || !chartRows[scrubIdx]) {
+    el.innerHTML = 'touch the chart to inspect a day';
+    return;
+  }
+  const r = chartRows[scrubIdx];
+  const parts = METRICS.filter(m => metricState[m.id])
+    .map(m => `<span class="dot" style="background:${m.color}"></span><b>${fmtV(m.id, r[m.id])}</b>`);
+  el.innerHTML = `<b>${esc(fmtDate(r.d))}</b> &nbsp; ` + parts.join(' &nbsp; ');
+}
+function bindScrub() {
+  const cv = $('chart');
+  if (!cv) return;
+  const hist = (store.appdata || {}).history || [];
+  const toIdx = clientX => {
+    const rect = cv.getBoundingClientRect();
+    const single = METRICS.filter(m => metricState[m.id]).length === 1;
+    const padL = single ? 38 : 6, padR = 6;
+    const f = (clientX - rect.left - padL) / (rect.width - padL - padR);
+    return Math.max(0, Math.min(chartRows.length - 1, Math.round(f * (chartRows.length - 1))));
+  };
+  const move = e => {
+    const t = e.touches ? e.touches[0] : e;
+    scrubIdx = toIdx(t.clientX);
+    drawChart(hist); scrubReadout();
+    if (e.touches) e.preventDefault();
+  };
+  cv.addEventListener('touchstart', move, { passive: false });
+  cv.addEventListener('touchmove', move, { passive: false });
+  cv.addEventListener('mousedown', move);
+  cv.addEventListener('mousemove', e => { if (e.buttons) move(e); });
+  cv.addEventListener('touchend', () => setTimeout(() => { scrubIdx = null; drawChart(hist); scrubReadout(); }, 1800));
 }
 function renderDash() {
   const ad = store.appdata;
   const v = $('view');
-  if (!ad || !ad.readiness) { v.innerHTML = '<div class="restcard"><div class="emoji">📊</div><h2>No data</h2><p style="color:var(--mut)">Sync in Settings first.</p></div>'; return; }
+  if (!ad || !ad.readiness) { v.innerHTML = '<div class="restcard"><div class="emoji">📊</div><h2>No data</h2><p style="color:var(--mut)">Sync in Setup first.</p></div>'; return; }
   const r = ad.readiness;
-  const hist = ad.history || [];
-  const rows = hist.slice(-range);
-  const latestOf = id => { for (let i = rows.length - 1; i >= 0; i--) if (rows[i][id] != null) return rows[i][id]; return null; };
-  const fmtV = (id, val) => val == null ? '—' : id === 'st' ? (val / 1000).toFixed(1) + 'k' : id === 'slp' ? val.toFixed(1) + 'h' : id === 'wt' ? val.toFixed(1) : Math.round(val);
+  const sd = ad.sleep_debt || { days: [], debt: 0, total: 0, target: 0 };
+  const gd = ad.green_days || [];
+  const ton = ad.tonnage || [];
+  const maxTon = Math.max(...ton.map(t => t.lb), 1);
   const a = ad.adherence || {};
-  const wkly = ad.weekly || [];
+  const calCells = [];
+  // pad calendar so columns align Mon..Sun
+  if (gd.length) {
+    const firstWd = (new Date(gd[0].d + 'T12:00:00').getDay() + 6) % 7;
+    for (let i = 0; i < firstWd; i++) calCells.push('<div></div>');
+    gd.forEach(g => calCells.push(`<div class="c ${g.cls} ${g.d === isoToday() ? 'today' : ''}">${+g.d.slice(8)}</div>`));
+  }
 
   v.innerHTML = `
   <div class="eyebrow"><span>DASHBOARD</span><span class="date">DATA → ${esc(r.data_through || '?')}</span></div>
@@ -517,9 +643,8 @@ function renderDash() {
   <div class="card">
     <div class="rangerow">${[7,14,30,60,90].map(n => `<button class="rg ${range === n ? 'on' : ''}" data-range="${n}">${n}d</button>`).join('')}</div>
     <div class="togglerow">${METRICS.map(m => `<button class="tg c-${m.id} ${metricState[m.id] ? 'on' : ''}" data-m="${m.id}">${m.label}</button>`).join('')}</div>
+    <div id="scrub"></div>
     <canvas id="chart"></canvas>
-    <div class="legend">${METRICS.filter(m => metricState[m.id]).map(m =>
-      `<span><span class="dot" style="background:${m.color}"></span>${m.label} <b>${fmtV(m.id, latestOf(m.id))}</b></span>`).join('')}</div>
   </div>
 
   <h3 class="sec">This block</h3>
@@ -528,14 +653,29 @@ function renderDash() {
     <div class="stat"><div class="num" style="color:var(--gold)">${a.streak ?? '—'}</div><div class="lbl">Session streak</div></div>
   </div>
 
-  <h3 class="sec">Weekly sets vs plan</h3>
-  <div class="card"><div class="wkbars">${wkly.map(w => {
-    const pct = Math.min(100, Math.round(100 * w.sets / (w.plan || 1)));
-    return `<div class="wkbar"><div class="val">${w.sets}</div>
-      <div class="bar" style="height:${Math.max(8, pct)}%"><div class="fill" style="height:100%"></div></div>
-      <div class="lb">${esc(w.label)}</div></div>`;
-  }).join('') || '<div style="color:var(--mut);font-size:13px">—</div>'}</div>
-  <div class="scrollhint">PLAN = ${wkly.length ? wkly[0].plan : '—'} SETS/WK · SESSIONS ${wkly.map(w => w.done + '/' + w.planned).join(' · ')}</div></div>
+  <h3 class="sec">Weekly tonnage (lb lifted)</h3>
+  <div class="card"><div class="wkbars">${ton.map(t =>
+    `<div class="wkbar ${t.lb === 0 ? 'dim' : ''}"><div class="val">${t.lb ? (t.lb / 1000).toFixed(1) + 'k' : '—'}</div>
+     <div class="bar" style="height:${Math.max(5, Math.round(100 * t.lb / maxTon))}%"></div>
+     <div class="lb">${esc(t.label)}</div></div>`).join('')}</div>
+  <div class="scrollhint">SETS × REPS × WEIGHT, SUMMED PER WEEK</div></div>
+
+  <h3 class="sec">Readiness calendar · last 5 weeks</h3>
+  <div class="card"><div class="cal">${WEEKDAYS.map(w => `<div class="hd">${w[0]}</div>`).join('')}${calCells.join('')}</div>
+  <div class="callegend"><span><span class="dot" style="background:#2c5a3b"></span>green</span>
+  <span><span class="dot" style="background:#5a4d24"></span>caution</span>
+  <span><span class="dot" style="background:#5a2c2c"></span>red</span>
+  <span><span class="dot" style="background:#1d1a13;border:1px solid #2a261c"></span>no data</span></div></div>
+
+  <h3 class="sec">Sleep debt · last ${sd.days.length} nights</h3>
+  <div class="card">
+    <div style="text-align:center;font-size:24px;font-weight:850;color:${sd.debt > 3 ? 'var(--red)' : sd.debt > 1 ? 'var(--gold)' : 'var(--green)'}">
+      ${sd.debt > 0 ? '−' + sd.debt + 'h' : 'PAID UP'}</div>
+    <div style="text-align:center;font-size:11px;color:var(--mut);letter-spacing:1px">${sd.total}H SLEPT VS ${sd.target}H TARGET</div>
+    <div class="sleepbars">${sd.days.map(d => {
+      const col = d.h < 6 ? 'var(--red)' : d.h < 7 ? 'var(--gold)' : 'var(--green)';
+      return `<div class="slb"><div class="v">${d.h}</div><div class="bar" style="height:${Math.min(100, d.h / 9 * 100)}%;background:${col}"></div><div class="lb">${d.d}</div></div>`;
+    }).join('')}</div></div>
 
   <h3 class="sec">Weight</h3>
   <div class="card" style="font-size:13.5px">${esc(ad.weight_line || '—')}</div>
@@ -547,20 +687,183 @@ function renderDash() {
   <div class="status">Pushed by your Mac at ${esc(ad.generated || '?')}</div>`;
 
   v.querySelectorAll('[data-range]').forEach(b => b.onclick = () => {
-    range = +b.dataset.range; localStorage.setItem('ha_range', range); renderDash();
+    range = +b.dataset.range; localStorage.setItem('ha_range', range); scrubIdx = null; renderDash();
   });
   v.querySelectorAll('[data-m]').forEach(b => b.onclick = () => {
     metricState[b.dataset.m] = !metricState[b.dataset.m];
-    localStorage.setItem('ha_metrics', JSON.stringify(metricState)); renderDash();
+    localStorage.setItem('ha_metrics', JSON.stringify(metricState)); scrubIdx = null; renderDash();
   });
-  drawChart(hist);
+  drawChart(ad.history || []);
+  scrubReadout();
+  bindScrub();
   bindCommon();
 }
 
+/* ---------------- LIFTS ---------------- */
+function drawLiftChart(entries) {
+  const cv = $('liftchart');
+  if (!cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const pts = entries.filter(e => e.w != null);
+  if (pts.length < 2) { ctx.fillStyle = '#8d877a'; ctx.font = '12px -apple-system'; ctx.fillText('Not enough sessions to chart yet', 10, H / 2); return; }
+  const padL = 34, padR = 8, padT = 10, padB = 20;
+  let lo = Math.min(...pts.map(p => p.w)), hi = Math.max(...pts.map(p => p.w));
+  if (hi - lo < 1e-9) { hi += 5; lo -= 5; }
+  const x = i => padL + (W - padL - padR) * i / (pts.length - 1);
+  const y = v => padT + (H - padT - padB) * (1 - (v - lo) / (hi - lo));
+  ctx.strokeStyle = '#221f17';
+  [0, .5, 1].forEach(f => { ctx.beginPath(); ctx.moveTo(padL, padT + (H - padT - padB) * f); ctx.lineTo(W - padR, padT + (H - padT - padB) * f); ctx.stroke(); });
+  ctx.fillStyle = '#d4a843'; ctx.font = '600 10px -apple-system'; ctx.textAlign = 'right';
+  ctx.fillText(String(hi), padL - 5, y(hi) + 3); ctx.fillText(String(lo), padL - 5, y(lo) + 3);
+  ctx.strokeStyle = '#d4a843'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  pts.forEach((p, i) => i ? ctx.lineTo(x(i), y(p.w)) : ctx.moveTo(x(i), y(p.w)));
+  ctx.stroke();
+  ctx.fillStyle = '#d4a843';
+  pts.forEach((p, i) => { ctx.beginPath(); ctx.arc(x(i), y(p.w), 3, 0, 7); ctx.fill(); });
+  ctx.fillStyle = '#8d877a'; ctx.font = '10px -apple-system'; ctx.textAlign = 'center';
+  [0, pts.length - 1].forEach(i => ctx.fillText(pts[i].d.slice(5), x(i), H - 5));
+}
+function renderLifts() {
+  const ad = store.appdata;
+  const v = $('view');
+  if (!ad || !ad.lifts_history) { v.innerHTML = '<div class="restcard"><div class="emoji">🏋️</div><h2>No data</h2><p style="color:var(--mut)">Sync in Setup first.</p></div>'; return; }
+  const lh = ad.lifts_history;
+  if (selLift && lh[selLift]) {
+    const entries = lh[selLift];
+    const sw = (ad.swaps || {})[norm(selLift)];
+    const prog = (ad.progress || []).find(p => p.n === selLift);
+    v.innerHTML = `
+    <button class="backbtn" id="back">← ALL LIFTS</button>
+    <h1 class="big" style="font-size:30px">${esc(selLift.toUpperCase())}</h1>
+    <div class="subtitle">${entries.length} SESSIONS LOGGED${prog ? ' · ' + esc(prog.status.toUpperCase()) : ''}</div>
+    <div class="card"><canvas id="liftchart"></canvas></div>
+    ${sw ? `<div class="tip"><b>Machine taken?</b> Swap for: ${esc(sw)}</div>` : ''}
+    <div class="card">` + entries.slice().reverse().map(e => `
+      <div class="hrow"><div><div class="nm">${esc(e.d)}</div>${e.note ? `<div class="hnote">${esc(e.note)}</div>` : ''}</div>
+      <div class="det">${esc(e.wr)} × ${esc(e.r)}${e.rpe ? ' @' + esc(e.rpe) : ''}</div></div>`).join('') + `</div>`;
+    $('back').onclick = () => { selLift = null; renderLifts(); };
+    drawLiftChart(entries);
+    return;
+  }
+  // list ordered: program exercises first (current block), then the rest
+  const progOrder = (ad.progress || []).map(p => p.n);
+  const names = [...new Set([...progOrder, ...Object.keys(lh)])].filter(n => lh[n]);
+  v.innerHTML = `
+  <div class="eyebrow"><span>LIFTS</span><span class="date">${names.length} EXERCISES</span></div>
+  <h1 class="big" style="font-size:34px">LIFT<span class="accent" style="color:var(--gold)">HISTORY</span></h1>
+  <div class="subtitle">TAP A LIFT FOR ITS FULL STORY</div>
+  <div class="card">` + names.map(n => {
+    const e = lh[n][lh[n].length - 1];
+    const prog = (ad.progress || []).find(p => p.n === n);
+    const inBlock = progOrder.includes(n);
+    return `<div class="liftrow" data-lift="${esc(n)}"><div>
+      <div class="nm" style="${inBlock ? '' : 'color:var(--mut)'}">${esc(n)}</div>
+      <div class="sub">${esc(e.d)} · ${esc(e.wr)} × ${esc(e.r)}${prog ? ` · <span class="st ${prog.cls}" style="font-size:11px">${esc(prog.status)}</span>` : ''}</div>
+    </div><div class="arrow">›</div></div>`;
+  }).join('') + `</div>
+  <div class="scrollhint">GRAYED LIFTS = NOT IN THE CURRENT BLOCK</div>`;
+  v.querySelectorAll('[data-lift]').forEach(el => el.onclick = () => { selLift = el.dataset.lift; renderLifts(); });
+}
+
+/* ---------------- COACH ---------------- */
+function mdLite(s) {
+  return esc(s)
+    .replace(/^#+ (.+)$/gm, '<b>$1</b>')
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+    .replace(/^\*(.+)\*$/gm, '<i>$1</i>')
+    .split(/\n\n+/).map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+}
+function renderCoach() {
+  const ad = store.appdata;
+  const v = $('view');
+  if (!ad) { v.innerHTML = '<div class="restcard"><div class="emoji">🧠</div><h2>No data</h2><p style="color:var(--mut)">Sync in Setup first.</p></div>'; return; }
+  const r = ad.readiness || {};
+  const c = ad.coach || {};
+  const mq = store.msgq;
+  v.innerHTML = `
+  <div class="eyebrow"><span>COACH</span><span class="date">${esc(ad.block_label || '')}</span></div>
+  <h1 class="big" style="font-size:34px">YOUR<span class="accent" style="color:var(--gold)">COACH</span></h1>
+  <div class="card verdict"><div class="v ${r.cls}">${esc(r.verdict || '')}</div>
+    <div class="adv">${esc(r.advice || '')}</div></div>
+
+  <h3 class="sec">Message the coach</h3>
+  <div class="card">
+    <textarea class="f msgbox" id="msg" placeholder="Shoulder felt tweaky on presses… / leg press seat is 5 now / can we talk deload?"></textarea>
+    <button class="bigbtn" id="sendmsg" style="margin-top:4px">Send</button>
+    ${mq.length ? `<div class="msgqueued">📤 ${mq.length} message(s) queued for next sync</div>` : ''}
+    <div class="status" id="mstatus">Read at the 7:42 am and 9:06 pm runs · replies appear below</div>
+  </div>
+  ${c.reply ? `<h3 class="sec">Coach reply</h3><div class="card recap">${mdLite(c.reply)}</div>` : ''}
+
+  <h3 class="sec">Weekly recap ${c.recap_date ? '· ' + esc(c.recap_date) : ''}</h3>
+  ${c.recap ? `<div class="card recap">${mdLite(c.recap)}</div>`
+            : `<div class="tip">First recap of the new system lands <b>Sunday 7 pm</b>. It covers: what worked, what didn't, and the one change for next week.</div>`}`;
+  $('sendmsg').onclick = () => {
+    const txt = $('msg').value.trim();
+    if (!txt) return;
+    const mq2 = store.msgq;
+    mq2.push({ id: 'msg|' + Date.now(), date: new Date().toISOString().slice(0, 16).replace('T', ' '), text: txt });
+    store.msgq = mq2;
+    $('msg').value = '';
+    syncAll($('mstatus'));
+  };
+}
+
+/* ---------------- PLAN ---------------- */
+function renderPlan() {
+  const ad = store.appdata;
+  const v = $('view');
+  if (!ad || !ad.sessions) { v.innerHTML = '<div class="restcard"><div class="emoji">🗺️</div><h2>No data</h2><p style="color:var(--mut)">Sync in Setup first.</p></div>'; return; }
+  const b = ad.block || {};
+  const curWeek = b.start ? Math.floor((new Date(isoToday()) - new Date(b.start + 'T12:00:00')) / 864e5 / 7) + 1 : 0;
+  const machineNote = name => {
+    const n = norm(name);
+    for (const [k, note] of Object.entries(ad.machine_notes || {}))
+      if (n.includes(k) || k.includes(n)) return note;
+    return '';
+  };
+  v.innerHTML = `
+  <div class="eyebrow"><span>PROGRAM</span><span class="date">WK ${curWeek} OF ${b.weeks || '?'}</span></div>
+  <h1 class="big" style="font-size:34px">BLOCK ${b.number || ''}<span class="accent" style="color:var(--gold)">${esc((b.name || '').toUpperCase())}</span></h1>
+  <div class="subtitle">${esc(b.start || '')} → ${b.weeks ? esc(addDays(b.start, b.weeks * 7 - 1)) : ''}</div>
+
+  <h3 class="sec">Phases</h3>
+  <div class="card">${(ad.phases || []).map(p => {
+    const cur = (p.block_weeks || []).includes(curWeek);
+    return `<div class="phase ${cur ? 'cur' : ''}"><div class="wk">WK ${p.block_weeks.join('–')}</div>
+      <div><div class="nm">${esc(p.phase)}${cur ? ' ←' : ''}</div><div class="nt">RPE cap ${p.rpe_cap} · ${esc(p.note || '')}</div></div></div>`;
+  }).join('')}</div>
+
+  <h3 class="sec">The week</h3>
+  <div class="card">${WEEKDAYS.map(w => {
+    const s = ad.schedule[w];
+    return `<div class="hrow"><div class="nm" style="${s === 'REST' ? 'color:var(--mut)' : ''}">${w}</div><div class="det" style="color:${ACCENTS[s] || 'var(--mut)'}">${esc(s)}</div></div>`;
+  }).join('')}</div>
+
+  <h3 class="sec">Sessions — tap to expand</h3>
+  <div class="card">${Object.entries(ad.sessions).map(([sname, sess]) => `
+    <div class="sessacc" data-s="${esc(sname)}">
+      <div class="head"><span style="color:${ACCENTS[sname] || 'var(--txt)'}">${esc(sname)}</span>
+      <span class="day">${esc(sess.focus || '')} ›</span></div>
+      <div class="body">${sess.exercises.map(ex => `
+        <div class="pexrow"><b>${esc(ex.name)}</b> <span class="tg2">— ${ex.sets}×${ex.rep_low}–${ex.rep_high}${ex.prefill_weight ? ' @ ' + ex.prefill_weight : ''} · rest ${ex.rest_sec}s</span>
+        ${ex.cue ? `<div class="tg2" style="font-style:italic">${esc(ex.cue)}</div>` : ''}
+        ${ex.type === 'Machine' && machineNote(ex.name) ? `<div class="mnote">⚙️ ${esc(machineNote(ex.name))}</div>` : ''}
+        </div>`).join('')}</div>
+    </div>`).join('')}</div>`;
+  v.querySelectorAll('.sessacc .head').forEach(h => h.onclick = () => h.parentElement.classList.toggle('open'));
+}
+
+/* ---------------- SETTINGS ---------------- */
 function renderSettings() {
   const s = LS.k;
   $('view').innerHTML = `
-  <div class="eyebrow"><span>SETTINGS</span></div>
+  <div class="eyebrow"><span>SETUP</span></div>
   <h1 class="big" style="font-size:34px">SYNC<span class="accent" style="color:var(--gold)">SETUP</span></h1>
   <div class="card">
     <label class="f">GitHub token (gist scope)</label>
@@ -568,9 +871,9 @@ function renderSettings() {
     <label class="f">Gist ID</label>
     <input class="f" id="gid" value="${esc(s.gist || '')}" placeholder="abc123…">
     <button class="bigbtn" id="saveset">Save & test</button>
-    <div class="status" id="sstatus">${store.queue.length ? store.queue.length + ' session(s) queued for upload' : ''}</div>
+    <div class="status" id="sstatus">${store.queue.length + store.msgq.length ? (store.queue.length + store.msgq.length) + ' item(s) queued for upload' : ''}</div>
   </div>
-  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — never part of the hosted page. Logged sets queue locally and upload when you have signal; your Mac ingests them at 7:42 am and 9:06 pm.</div>
+  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — never part of the hosted page. Logged sets and messages queue locally and upload when you have signal; your Mac ingests them at 7:42 am and 9:06 pm.</div>
   <div class="tip"><b>Install as app:</b> Safari → Share → Add to Home Screen.</div>`;
   $('saveset').onclick = async () => {
     LS.k = { token: $('tok').value.trim(), gist: $('gid').value.trim() };
@@ -578,13 +881,9 @@ function renderSettings() {
     try { await pullAppdata(); $('sstatus').textContent = 'Connected ✓ — data loaded'; }
     catch (e) { $('sstatus').textContent = 'Failed: ' + e.message; }
   };
-  bindCommon();
 }
 
-function bindCommon() {
-  document.querySelectorAll('.chip[data-date]').forEach(c => c.onclick = () => { selDate = c.dataset.date; renderToday(); });
-}
-document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; selLift = null; render(); });
 
 /* boot */
 if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
