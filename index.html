@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Health Agent">
+<meta name="theme-color" content="#0d0c0a">
+<title>Health Agent</title>
+<style>
+:root {
+  --bg:#0d0c0a; --card:#17150f; --card2:#1d1a13; --line:#2a261c;
+  --txt:#f4f1ea; --mut:#8d877a; --gold:#d4a843; --orange:#e06c3a;
+  --blue:#5aa9e6; --green:#5cb87a; --red:#e05a5a;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { background:var(--bg); color:var(--txt); font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif; }
+body { padding:calc(var(--safe-top) + 10px) 16px calc(var(--safe-bot) + 90px); max-width:640px; margin:0 auto; }
+.eyebrow { font-size:11px; letter-spacing:3px; font-weight:700; color:var(--gold); text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+.eyebrow .date { color:var(--mut); letter-spacing:1px; border:1px solid var(--line); border-radius:99px; padding:4px 12px; font-size:11px; }
+h1.big { font-size:54px; line-height:.95; font-weight:850; letter-spacing:-1px; text-transform:uppercase; margin:10px 0 2px; }
+h1.big .accent { display:block; }
+.subtitle { font-size:13px; letter-spacing:2.5px; color:var(--mut); text-transform:uppercase; margin:8px 0 16px; }
+.chips { display:flex; gap:6px; overflow-x:auto; padding:4px 0 12px; -webkit-overflow-scrolling:touch; }
+.chip { flex:none; font-size:12px; font-weight:700; letter-spacing:1px; color:var(--mut); border:1px solid var(--line); border-radius:99px; padding:9px 16px; background:transparent; }
+.chip.today { color:var(--txt); }
+.chip.today::after { content:" •"; color:var(--gold); }
+.chip.sel { border-color:var(--acc,var(--gold)); color:var(--acc,var(--gold)); }
+.meta { display:flex; justify-content:space-between; font-size:11.5px; letter-spacing:1.5px; color:var(--mut); text-transform:uppercase; border-bottom:2px solid var(--line); padding-bottom:8px; margin-bottom:14px; }
+.meta b { color:var(--txt); }
+.card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px; margin-bottom:12px; }
+.exhead { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+.exname { font-size:17px; font-weight:700; }
+.extarget { font-size:14px; font-weight:800; color:var(--acc,var(--gold)); white-space:nowrap; }
+.excue { font-size:12.5px; color:var(--mut); font-style:italic; margin-top:3px; }
+.setgrid { margin-top:12px; }
+.setlabels { display:grid; grid-template-columns:40px 1fr 1fr 44px; gap:8px; font-size:10px; color:var(--mut); text-transform:uppercase; letter-spacing:1px; text-align:center; margin-bottom:6px; }
+.setrow { display:grid; grid-template-columns:40px 1fr 1fr 44px; gap:8px; align-items:center; margin-bottom:7px; }
+.setnum { width:36px; height:36px; border:1.5px solid var(--line); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--mut); }
+.setrow.done .setnum { background:var(--acc,var(--gold)); border-color:var(--acc,var(--gold)); color:#0d0c0a; }
+.setrow input { font:inherit; font-size:16px; font-weight:600; text-align:center; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:11px; padding:9px 4px; width:100%; }
+.setrow input:focus { outline:none; border-color:var(--acc,var(--gold)); }
+.setrow.done input { opacity:.65; }
+.checkbtn { width:40px; height:40px; border-radius:12px; border:1.5px solid var(--line); background:var(--card2); color:var(--mut); font-size:17px; }
+.setrow.done .checkbtn { background:var(--acc,var(--gold)); border-color:var(--acc,var(--gold)); color:#0d0c0a; }
+.exfoot { display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.rpewrap { font-size:12px; color:var(--mut); display:flex; align-items:center; gap:6px; }
+select,.noteinput { font:inherit; font-size:13px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:10px; padding:7px 10px; }
+.noteinput { flex:1; min-width:110px; }
+.restpill { font-size:11px; letter-spacing:1px; color:var(--mut); border:1px solid var(--line); border-radius:99px; padding:5px 12px; text-transform:uppercase; }
+.bigbtn { display:block; width:100%; font:inherit; font-size:16px; font-weight:800; letter-spacing:.5px; color:#0d0c0a; background:var(--gold); border:none; border-radius:16px; padding:16px; margin:18px 0 6px; }
+.bigbtn:disabled { background:#3a362b; color:#7a7466; }
+.bigbtn.ghost { background:transparent; border:1px solid var(--line); color:var(--mut); font-weight:600; padding:12px; font-size:13px; margin:6px 0; }
+.status { text-align:center; font-size:12px; color:var(--mut); min-height:16px; margin-top:6px; }
+.restcard { text-align:center; padding:60px 16px; }
+.restcard .emoji { font-size:44px; }
+.restcard h2 { font-size:30px; letter-spacing:2px; color:var(--mut); margin:14px 0 6px; text-transform:uppercase; }
+.tip { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px 15px; font-size:13.5px; line-height:1.5; margin-bottom:10px; text-align:left; color:var(--txt); }
+.tip b { color:var(--gold); }
+/* timer bar */
+#timerbar { position:fixed; left:0; right:0; bottom:0; background:rgba(13,12,10,.96); backdrop-filter:blur(10px); border-top:1px solid var(--line); padding:10px 16px calc(var(--safe-bot) + 10px); display:none; z-index:50; }
+#timerbar.on { display:block; }
+.timerrow { max-width:640px; margin:0 auto; display:flex; align-items:center; gap:12px; }
+#timenum { font-size:34px; font-weight:850; font-variant-numeric:tabular-nums; min-width:96px; }
+#timenum.urgent { color:var(--orange); }
+.timerlabel { flex:1; font-size:11px; letter-spacing:1.5px; color:var(--mut); text-transform:uppercase; line-height:1.5; }
+.tbtn { font:inherit; font-size:13px; font-weight:700; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:11px; padding:10px 14px; }
+#timerprog { position:absolute; top:-1px; left:0; height:2px; background:var(--gold); width:0%; }
+/* tabs */
+#tabs { position:fixed; left:0; right:0; bottom:0; background:rgba(13,12,10,.96); backdrop-filter:blur(10px); border-top:1px solid var(--line); display:flex; z-index:40; padding-bottom:var(--safe-bot); }
+#tabs button { flex:1; font:inherit; font-size:11px; letter-spacing:1px; font-weight:700; text-transform:uppercase; color:var(--mut); background:none; border:none; padding:13px 0 10px; }
+#tabs button.sel { color:var(--gold); }
+/* dashboard */
+.verdict { text-align:center; padding:24px 16px; }
+.verdict .v { font-size:30px; font-weight:850; letter-spacing:.5px; text-transform:uppercase; }
+.v.green { color:var(--green); } .v.yellow { color:var(--gold); } .v.red { color:var(--red); } .v.stale { color:var(--mut); }
+.verdict .adv { font-size:13.5px; color:var(--mut); margin-top:8px; line-height:1.5; }
+.sigs { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:12px; }
+.sig { font-size:11.5px; padding:5px 11px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
+.sig.s0 { color:var(--green); border-color:#2c4a36; } .sig.s1 { color:var(--gold); border-color:#4a3f1d; } .sig.s2 { color:var(--red); border-color:#4a2424; }
+.strip { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+.day { background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:8px 2px; text-align:center; font-size:10.5px; line-height:1.8; }
+.day .dd { font-weight:800; color:var(--mut); }
+h3.sec { font-size:11px; letter-spacing:2px; color:var(--mut); text-transform:uppercase; margin:18px 0 8px; }
+.bumps .row { display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+.bumps .row:last-child { border:none; }
+.bumps .st { font-weight:800; white-space:nowrap; }
+.st.bump { color:var(--green); } .st.work { color:var(--blue); } .st.wait { color:var(--mut); }
+/* settings */
+label.f { display:block; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--mut); margin:14px 0 6px; }
+input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:12px; padding:12px; }
+.queuebadge { font-size:11px; color:var(--orange); }
+</style>
+</head>
+<body>
+<div id="view"></div>
+
+<div id="timerbar"><div id="timerprog"></div>
+  <div class="timerrow">
+    <div id="timenum">0:00</div>
+    <div class="timerlabel" id="timerlabel">REST</div>
+    <button class="tbtn" id="t30">+30s</button>
+    <button class="tbtn" id="tskip">Skip</button>
+  </div>
+</div>
+
+<div id="tabs">
+  <button data-tab="today" class="sel">Today</button>
+  <button data-tab="dash">Dashboard</button>
+  <button data-tab="settings">Settings</button>
+</div>
+
+<script>
+'use strict';
+/* ================= Health Agent phone app =================
+   Data: private GitHub gist with files appdata.json (Mac → phone:
+   program, prefilled weights, readiness, dashboard) and inbox.json
+   (phone → Mac: logged sessions; ingested by scripts/sync_phone.py).
+   Settings (token, gist id) live in localStorage only — never hosted. */
+
+const LS = {
+  get k() { return JSON.parse(localStorage.getItem('ha_settings') || '{}'); },
+  set k(v) { localStorage.setItem('ha_settings', JSON.stringify(v)); }
+};
+const store = {
+  get appdata() { return JSON.parse(localStorage.getItem('ha_appdata') || 'null'); },
+  set appdata(v) { localStorage.setItem('ha_appdata', JSON.stringify(v)); },
+  get queue() { return JSON.parse(localStorage.getItem('ha_queue') || '[]'); },
+  set queue(v) { localStorage.setItem('ha_queue', JSON.stringify(v)); },
+  draft(date) { return JSON.parse(localStorage.getItem('ha_draft_' + date) || 'null'); },
+  setDraft(date, v) { localStorage.setItem('ha_draft_' + date, JSON.stringify(v)); },
+  clearDraft(date) { localStorage.removeItem('ha_draft_' + date); }
+};
+
+const WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const ACCENTS = { 'Push A':'#d4a843','Push B':'#d4a843','Pull A':'#cfc9bd','Pull B':'#cfc9bd',
+                  'Legs A':'#e06c3a','Legs B':'#e06c3a','REST':'#5cb87a' };
+let tab = 'today';
+let selDate = isoToday();
+
+function isoToday() { const d = new Date(); return d.toISOString().slice(0,10); }
+function weekdayOf(iso) { return WEEKDAYS[(new Date(iso + 'T12:00:00').getDay() + 6) % 7]; }
+function mondayOf(iso) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0,10); }
+function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
+function fmtDate(iso) { return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase(); }
+
+/* ---------------- gist sync ---------------- */
+async function gistGet() {
+  const s = LS.k;
+  if (!s.token || !s.gist) throw new Error('Not configured — open Settings');
+  const r = await fetch('https://api.github.com/gists/' + s.gist, {
+    headers: { Authorization: 'Bearer ' + s.token, Accept: 'application/vnd.github+json' }
+  });
+  if (!r.ok) throw new Error('GitHub ' + r.status);
+  return r.json();
+}
+async function gistPatch(files) {
+  const s = LS.k;
+  const r = await fetch('https://api.github.com/gists/' + s.gist, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + s.token, Accept: 'application/vnd.github+json' },
+    body: JSON.stringify({ files })
+  });
+  if (!r.ok) throw new Error('GitHub ' + r.status);
+  return r.json();
+}
+async function pullAppdata() {
+  const g = await gistGet();
+  const f = g.files['appdata.json'];
+  if (!f) throw new Error('appdata.json missing in gist');
+  let content = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
+  store.appdata = JSON.parse(content);
+  return store.appdata;
+}
+async function pushQueue() {
+  const q = store.queue;
+  if (!q.length) return 0;
+  const g = await gistGet();
+  let inbox = { sessions: [] };
+  try { inbox = JSON.parse(g.files['inbox.json'] ? g.files['inbox.json'].content : '{"sessions":[]}'); } catch (e) {}
+  const have = new Set(inbox.sessions.map(s => s.id));
+  for (const s of q) if (!have.has(s.id)) inbox.sessions.push(s);
+  await gistPatch({ 'inbox.json': { content: JSON.stringify(inbox, null, 1) } });
+  store.queue = [];
+  return q.length;
+}
+async function syncAll(statusEl) {
+  const say = m => { if (statusEl) statusEl.textContent = m; };
+  try {
+    say('Syncing…');
+    const n = await pushQueue();
+    await pullAppdata();
+    say((n ? 'Sent ' + n + ' session(s). ' : '') + 'Up to date ✓');
+    render();
+  } catch (e) { say('Offline / ' + e.message + (store.queue.length ? ' — ' + store.queue.length + ' queued' : '')); }
+}
+
+/* ---------------- timer ---------------- */
+let timer = { end: 0, total: 0, iv: null };
+const $ = id => document.getElementById(id);
+function startTimer(sec, label) {
+  clearInterval(timer.iv);
+  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200) };
+  $('timerlabel').textContent = label || 'REST';
+  $('timerbar').classList.add('on');
+  tickTimer();
+}
+function tickTimer() {
+  const left = timer.end - Date.now();
+  if (left <= 0) {
+    $('timenum').textContent = 'GO!';
+    $('timenum').classList.add('urgent');
+    $('timerprog').style.width = '100%';
+    beep();
+    clearInterval(timer.iv);
+    setTimeout(() => $('timerbar').classList.remove('on'), 2500);
+    return;
+  }
+  const s = Math.ceil(left / 1000);
+  $('timenum').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  $('timenum').classList.toggle('urgent', s <= 5);
+  $('timerprog').style.width = (100 - left / timer.total * 100) + '%';
+}
+let audioCtx = null;
+function beep() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    [0, .18, .36].forEach(t => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.frequency.value = 880; g.gain.value = .25;
+      o.start(audioCtx.currentTime + t); o.stop(audioCtx.currentTime + t + .12);
+    });
+  } catch (e) {}
+  if (navigator.vibrate) navigator.vibrate([200, 80, 200]);
+}
+document.addEventListener('click', e => {
+  if (e.target.id === 't30') timer.end += 30000;
+  if (e.target.id === 'tskip') { clearInterval(timer.iv); $('timerbar').classList.remove('on'); }
+});
+
+/* ---------------- draft (per-day in-progress log) ---------------- */
+function getDraft(date, sessName, sess) {
+  let d = store.draft(date);
+  if (d && d.session === sessName) return d;
+  d = { date, session: sessName, exercises: sess.exercises.map(ex => ({
+    name: ex.name, equip: ex.type, rest: ex.rest_sec, rpe: '', note: '',
+    skipped: false,
+    sets: Array.from({ length: ex.sets }, () => ({ reps: '', weight: ex.prefill_weight ?? '', done: false }))
+  })) };
+  store.setDraft(date, d);
+  return d;
+}
+
+/* ---------------- views ---------------- */
+function render() {
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('sel', b.dataset.tab === tab));
+  if (tab === 'today') renderToday();
+  else if (tab === 'dash') renderDash();
+  else renderSettings();
+}
+
+function header(title, accent, sub) {
+  const ad = store.appdata;
+  return `<div class="eyebrow"><span>RECOMP · ${ad ? esc(ad.block_label) : 'HEALTH AGENT'}</span><span class="date">${fmtDate(selDate)}</span></div>
+  <h1 class="big">TODAY<span class="accent" style="color:${accent}">${esc(title)}</span></h1>
+  <div class="subtitle">${esc(sub || '')}</div>`;
+}
+
+function chipsRow() {
+  const mon = mondayOf(selDate);
+  const today = isoToday();
+  return `<div class="chips">` + WEEKDAYS.map((w, i) => {
+    const d = addDays(mon, i);
+    return `<button class="chip ${d === selDate ? 'sel' : ''} ${d === today ? 'today' : ''}" data-date="${d}">${w.toUpperCase()}</button>`;
+  }).join('') + `</div>`;
+}
+
+function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+function renderToday() {
+  const ad = store.appdata;
+  const v = $('view');
+  if (!ad) {
+    v.innerHTML = `<div class="restcard"><div class="emoji">📡</div><h2>No data yet</h2>
+      <p style="color:var(--mut);font-size:13.5px">Open Settings, add your token + gist ID, then Sync.</p></div>`;
+    return;
+  }
+  const wd = weekdayOf(selDate);
+  const sessName = ad.schedule[wd] || 'REST';
+  const accent = ACCENTS[sessName] || 'var(--gold)';
+  document.body.style.setProperty('--acc', accent);
+
+  if (sessName === 'REST') {
+    v.innerHTML = header('FULL REST', accent, 'Recover. Eat. Sleep.') + chipsRow() + `
+      <div class="restcard"><div class="emoji">🌿</div><h2>Full Rest</h2></div>
+      <div class="tip"><b>Sleep is training.</b> One short night barely dents strength — but back-to-back short nights wreck your compound lifts. Protect 7+.</div>
+      <div class="tip"><b>Protein still matters.</b> ${esc(ad.protein_line || '155–170 g today: palm of protein every meal, slow protein (Greek yogurt / cottage cheese) before bed.')}</div>
+      <div class="tip"><b>Tomorrow:</b> ${esc(ad.schedule[WEEKDAYS[(WEEKDAYS.indexOf(wd) + 1) % 7]])}. Set out the DBs tonight.</div>`;
+    bindCommon();
+    return;
+  }
+
+  const sess = ad.sessions[sessName];
+  if (!sess) { v.innerHTML = header(sessName, accent, '') + chipsRow() + '<div class="card">Session not in program data — sync in Settings.</div>'; bindCommon(); return; }
+  const draft = getDraft(selDate, sessName, sess);
+  const totalSets = draft.exercises.reduce((a, e) => a + (e.skipped ? 0 : e.sets.length), 0);
+  const doneSets = draft.exercises.reduce((a, e) => a + e.sets.filter(s => s.done).length, 0);
+  const alreadyLogged = (ad.logged_dates || []).includes(selDate);
+  const queued = store.queue.some(s => s.date === selDate);
+
+  let html = header(sess.title || sessName, accent, sess.focus || '') + chipsRow() +
+    `<div class="meta"><span>SETS COMPLETED</span><b>${doneSets} / ${totalSets}</b></div>`;
+  if (alreadyLogged) html += `<div class="tip">✅ <b>This day is already in the lift log.</b> Re-saving will be ignored by the Mac (idempotent), so you're safe either way.</div>`;
+  if (queued) html += `<div class="tip">📤 <b>Queued.</b> This session is saved on the phone and will upload on next sync.</div>`;
+
+  draft.exercises.forEach((ex, ei) => {
+    const pex = sess.exercises[ei] || {};
+    html += `<div class="card ${ex.skipped ? 'skipped' : ''}" data-ei="${ei}">
+      <div class="exhead"><div><div class="exname">${esc(ex.name)}</div>
+      ${pex.cue ? `<div class="excue">${esc(pex.cue)}</div>` : ''}
+      ${pex.hint ? `<div class="excue" style="color:${accent}">${esc(pex.hint)}</div>` : ''}</div>
+      <div class="extarget">${pex.sets}×${pex.rep_low}–${pex.rep_high}</div></div>
+      <div class="setgrid"><div class="setlabels"><div>SET</div><div>REPS</div><div>${ex.equip === 'BW' ? '— BW —' : 'WEIGHT'}</div><div>✓</div></div>` +
+      ex.sets.map((s, si) => `<div class="setrow ${s.done ? 'done' : ''}" data-si="${si}">
+        <div class="setnum">${si + 1}</div>
+        <input inputmode="numeric" data-f="reps" value="${esc(s.reps)}" placeholder="${pex.rep_low || ''}">
+        <input inputmode="decimal" data-f="weight" value="${esc(s.weight)}" ${ex.equip === 'BW' ? 'placeholder="—"' : ''}>
+        <button class="checkbtn">✓</button></div>`).join('') +
+      `</div><div class="exfoot">
+        <span class="restpill">⏱ rest ${ex.rest || 90}s</span>
+        <span class="rpewrap">RPE <select data-f="rpe">${['', 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10].map(r => `<option ${String(ex.rpe) === String(r) ? 'selected' : ''}>${r}</option>`).join('')}</select></span>
+        <input class="noteinput" data-f="note" placeholder="note" value="${esc(ex.note)}">
+      </div></div>`;
+  });
+
+  html += `<button class="bigbtn" id="finish" ${doneSets === 0 ? 'disabled' : ''}>Finish session — send to coach</button>
+  <button class="bigbtn ghost" id="syncnow2">Sync now ${store.queue.length ? `<span class="queuebadge">(${store.queue.length} queued)</span>` : ''}</button>
+  <div class="status" id="tstatus"></div>`;
+  v.innerHTML = html;
+
+  /* bindings */
+  v.querySelectorAll('.card[data-ei]').forEach(card => {
+    const ei = +card.dataset.ei;
+    card.querySelectorAll('.setrow').forEach(row => {
+      const si = +row.dataset.si;
+      row.querySelector('.checkbtn').onclick = () => {
+        const d = store.draft(selDate);
+        const st = d.exercises[ei].sets[si];
+        st.done = !st.done;
+        if (st.done && !st.reps) st.reps = String((sess.exercises[ei] || {}).rep_low || '');
+        store.setDraft(selDate, d);
+        if (st.done) startTimer(d.exercises[ei].rest || 90, 'REST — ' + d.exercises[ei].name.toUpperCase());
+        renderToday();
+      };
+      row.querySelectorAll('input').forEach(inp => inp.onchange = () => {
+        const d = store.draft(selDate);
+        d.exercises[ei].sets[si][inp.dataset.f] = inp.value;
+        store.setDraft(selDate, d);
+      });
+    });
+    card.querySelector('[data-f=rpe]').onchange = e => { const d = store.draft(selDate); d.exercises[ei].rpe = e.target.value; store.setDraft(selDate, d); };
+    card.querySelector('[data-f=note]').onchange = e => { const d = store.draft(selDate); d.exercises[ei].note = e.target.value; store.setDraft(selDate, d); };
+  });
+  const fin = $('finish');
+  if (fin) fin.onclick = () => {
+    const d = store.draft(selDate);
+    const payload = {
+      id: d.date + '|' + d.session + '|' + Date.now(),
+      date: d.date, session: d.session, source: 'phone-app',
+      exercises: d.exercises.filter(e => !e.skipped && e.sets.some(s => s.done && s.reps))
+        .map(e => ({ name: e.name, equip: e.equip, rest: e.rest, rpe: e.rpe, note: e.note,
+                     sets: e.sets.filter(s => s.done && s.reps).map(s => ({ reps: s.reps, weight: s.weight })) }))
+    };
+    if (!payload.exercises.length) { $('tstatus').textContent = 'Nothing logged yet.'; return; }
+    const q = store.queue.filter(s => s.date !== d.date);
+    q.push(payload);
+    store.queue = q;
+    syncAll($('tstatus'));
+  };
+  const sn = $('syncnow2');
+  if (sn) sn.onclick = () => syncAll($('tstatus'));
+  bindCommon();
+}
+
+function renderDash() {
+  const ad = store.appdata;
+  const v = $('view');
+  if (!ad || !ad.readiness) { v.innerHTML = '<div class="restcard"><div class="emoji">📊</div><h2>No data</h2><p style="color:var(--mut)">Sync in Settings first.</p></div>'; return; }
+  const r = ad.readiness;
+  v.innerHTML = `
+  <div class="eyebrow"><span>DASHBOARD</span><span class="date">DATA → ${esc(r.data_through || '?')}</span></div>
+  <div class="card verdict"><div class="v ${r.cls}">${esc(r.verdict)}</div>
+    <div class="adv">${esc(r.advice)}</div>
+    <div class="sigs">${(r.signals || []).map(s => `<span class="sig s${s[0]}">${esc(s[1])}</span>`).join('')}</div></div>
+  <h3 class="sec">Last 7 days · RHR / HRV / Sleep / Steps</h3>
+  <div class="card"><div class="strip">${(ad.strip7 || []).map(s =>
+    `<div class="day"><div class="dd">${esc(s.d)}</div><div>${esc(s.rhr)}</div><div>${esc(s.hrv)}</div><div>${esc(s.slp)}</div><div>${esc(s.steps)}</div></div>`).join('')}</div></div>
+  <h3 class="sec">Double progression</h3>
+  <div class="card bumps">${(ad.progress || []).map(p =>
+    `<div class="row"><div><b>${esc(p.n)}</b><br><span style="color:var(--mut);font-size:12px">${esc(p.last)}</span></div><div class="st ${p.cls}">${esc(p.status)}</div></div>`).join('') || '<div style="color:var(--mut)">—</div>'}</div>
+  <h3 class="sec">Weight</h3>
+  <div class="card" style="font-size:13.5px">${esc(ad.weight_line || '—')}</div>
+  <div class="status">Pushed by your Mac at ${esc(ad.generated || '?')}</div>`;
+  bindCommon();
+}
+
+function renderSettings() {
+  const s = LS.k;
+  $('view').innerHTML = `
+  <div class="eyebrow"><span>SETTINGS</span></div>
+  <h1 class="big" style="font-size:34px">SYNC<span class="accent" style="color:var(--gold)">SETUP</span></h1>
+  <div class="card">
+    <label class="f">GitHub token (gist scope)</label>
+    <input class="f" id="tok" type="password" value="${esc(s.token || '')}" placeholder="github_pat_… / ghp_…">
+    <label class="f">Gist ID</label>
+    <input class="f" id="gid" value="${esc(s.gist || '')}" placeholder="abc123…">
+    <button class="bigbtn" id="saveset">Save & test</button>
+    <div class="status" id="sstatus">${store.queue.length ? store.queue.length + ' session(s) queued for upload' : ''}</div>
+  </div>
+  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — it is never part of the hosted page. Logged sets queue locally and upload when you have signal; your Mac ingests them on its 7:42 am and 9:06 pm runs.</div>
+  <div class="tip"><b>Install as app:</b> in Safari tap Share → Add to Home Screen.</div>`;
+  $('saveset').onclick = async () => {
+    LS.k = { token: $('tok').value.trim(), gist: $('gid').value.trim() };
+    $('sstatus').textContent = 'Testing…';
+    try { await pullAppdata(); $('sstatus').textContent = 'Connected ✓ — data loaded'; }
+    catch (e) { $('sstatus').textContent = 'Failed: ' + e.message; }
+  };
+  bindCommon();
+}
+
+function bindCommon() {
+  document.querySelectorAll('.chip[data-date]').forEach(c => c.onclick = () => { selDate = c.dataset.date; renderToday(); });
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
+
+/* boot */
+if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+render();
+if (LS.k.token) syncAll(null);
+</script>
+</body>
+</html>
