@@ -435,7 +435,7 @@ function renderToday() {
     const extNote = restExtNote(ex);
     html += `<div class="card" data-ei="${ei}">
       <div class="exhead"><div><div class="exname">${esc(ex.name)}</div>
-      ${pex.cue ? `<div class="excue">${esc(pex.cue)}</div>` : ''}
+      ${pex.desc ? `<div class="excue" style="color:var(--blue);font-style:normal">${esc(pex.desc)}</div>` : pex.cue ? `<div class="excue">${esc(pex.cue)}</div>` : ''}
       ${pex.hint ? `<div class="excue" style="color:${accent}">${esc(pex.hint)}</div>` : ''}</div>
       <div class="extarget">${pex.sets}×${pex.rep_low}–${pex.rep_high}</div></div>
       <div class="setgrid"><div class="setlabels"><div>SET</div><div>REPS</div><div>${ex.equip === 'BW' ? '— BW —' : 'WEIGHT'}</div><div>✓</div></div>` +
@@ -737,10 +737,13 @@ function renderLifts() {
     const entries = lh[selLift];
     const sw = (ad.swaps || {})[norm(selLift)];
     const prog = (ad.progress || []).find(p => p.n === selLift);
+    const info = (ad.exinfo || {})[norm(selLift)] || {};
     v.innerHTML = `
     <button class="backbtn" id="back">← ALL LIFTS</button>
     <h1 class="big" style="font-size:30px">${esc(selLift.toUpperCase())}</h1>
     <div class="subtitle">${entries.length} SESSIONS LOGGED${prog ? ' · ' + esc(prog.status.toUpperCase()) : ''}</div>
+    ${info.muscles ? `<div class="tip">💪 ${esc(info.muscles)}</div>` : ''}
+    ${(info.setup || info.cue) ? `<div class="tip" style="color:var(--blue)">📘 <b style="color:var(--blue)">How to:</b> ${esc(info.setup || info.cue)}${info.setup && info.cue ? '<br><span style="color:var(--mut)">' + esc(info.cue) + '</span>' : ''}</div>` : ''}
     <div class="card"><canvas id="liftchart"></canvas></div>
     ${sw ? `<div class="tip"><b>Machine taken?</b> Swap for: ${esc(sw)}</div>` : ''}
     <div class="card">` + entries.slice().reverse().map(e => `
@@ -852,8 +855,7 @@ function renderPlan() {
       <span class="day">${esc(sess.focus || '')} ›</span></div>
       <div class="body">${sess.exercises.map(ex => `
         <div class="pexrow"><b>${esc(ex.name)}</b> <span class="tg2">— ${ex.sets}×${ex.rep_low}–${ex.rep_high}${ex.prefill_weight ? ' @ ' + ex.prefill_weight : ''} · rest ${ex.rest_sec}s</span>
-        ${ex.cue ? `<div class="tg2" style="font-style:italic">${esc(ex.cue)}</div>` : ''}
-        ${ex.type === 'Machine' && machineNote(ex.name) ? `<div class="mnote">⚙️ ${esc(machineNote(ex.name))}</div>` : ''}
+        ${ex.desc ? `<div class="mnote">${esc(ex.desc)}</div>` : ex.type === 'Machine' && machineNote(ex.name) ? `<div class="mnote">⚙️ ${esc(machineNote(ex.name))}</div>` : ''}
         </div>`).join('')}</div>
     </div>`).join('')}</div>`;
   v.querySelectorAll('.sessacc .head').forEach(h => h.onclick = () => h.parentElement.classList.toggle('open'));
