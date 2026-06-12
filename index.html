@@ -132,6 +132,12 @@ h3.sec { font-size:11px; letter-spacing:2px; color:var(--mut); text-transform:up
 .liftrow .nm { font-weight:700; font-size:15px; }
 .liftrow .sub { font-size:11.5px; color:var(--mut); margin-top:2px; }
 .liftrow .arrow { color:var(--mut); font-size:18px; }
+.demo { background:#fff; border-radius:16px; overflow:hidden; position:relative; height:210px; margin-bottom:12px; border:1px solid var(--line); }
+.demo img { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:0; animation:demoA 2.6s infinite; }
+.demo img:nth-child(2) { animation-name:demoB; }
+.demo .tag { position:absolute; bottom:8px; right:10px; font-size:9px; letter-spacing:1px; color:#999; text-transform:uppercase; }
+@keyframes demoA { 0%,42% {opacity:1} 52%,92% {opacity:0} 100% {opacity:1} }
+@keyframes demoB { 0%,42% {opacity:0} 52%,92% {opacity:1} 100% {opacity:0} }
 .backbtn { font:inherit; font-size:13px; font-weight:700; color:var(--gold); background:none; border:none; padding:6px 0 12px; letter-spacing:1px; }
 #liftchart { width:100%; height:150px; display:block; }
 /* coach */
@@ -229,6 +235,13 @@ function fmtDate(iso) { return new Date(iso + 'T12:00:00').toLocaleDateString('e
 function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 function norm(s) { return String(s).replace(/\(.*?\)/g,'').toLowerCase().replace(/[^a-z]/g,''); }
 const $ = id => document.getElementById(id);
+const MEDIA = new Set(["abcrunch","arnoldpress","bicepscurl","bulgariansplitsquat","convergingchestpress","convergingshoulderpress","dbarnoldpress","dbbentoverrow","dbbentoverrowwidegrip","dbbicepcurl","dbcalfraise","dbconcentrationcurl","dbfloorpress","dbgobletsquat","dbhammercurl","dbhipthrust","dblateralraise","dblyingpecfly","dboverheadtricepextension","dbreversefly","dbromaniandeadlift","dbseatedshoulderpress","dbsinglearmrow","dbskullcrusher","dbsqueezepress","dbstandingcalfraise","deadbug","diverginglatpulldown","divergingseatedrow","gobletsquat","innerthigh","legextension","legpress","outerthigh","pecfly","plateloadedchestpress","pushups","reardelt","renegaderow","seatedlegcurl","squatmachine","tricepsextension"]);
+function demoCard(name) {
+  const k = norm(name);
+  if (!MEDIA.has(k)) return '';
+  return `<div class="demo"><img src="media/${k}/0.jpg" alt="" loading="lazy" onerror="this.closest('.demo').style.display='none'">
+    <img src="media/${k}/1.jpg" alt="" loading="lazy"><span class="tag">start → finish</span></div>`;
+}
 
 /* ---------------- gist sync ---------------- */
 async function gistGet() {
@@ -742,6 +755,7 @@ function renderLifts() {
     <button class="backbtn" id="back">← ALL LIFTS</button>
     <h1 class="big" style="font-size:30px">${esc(selLift.toUpperCase())}</h1>
     <div class="subtitle">${entries.length} SESSIONS LOGGED${prog ? ' · ' + esc(prog.status.toUpperCase()) : ''}</div>
+    ${demoCard(selLift)}
     ${info.muscles ? `<div class="tip">💪 ${esc(info.muscles)}</div>` : ''}
     ${(info.setup || info.cue) ? `<div class="tip" style="color:var(--blue)">📘 <b style="color:var(--blue)">How to:</b> ${esc(info.setup || info.cue)}${info.setup && info.cue ? '<br><span style="color:var(--mut)">' + esc(info.cue) + '</span>' : ''}</div>` : ''}
     <div class="card"><canvas id="liftchart"></canvas></div>
