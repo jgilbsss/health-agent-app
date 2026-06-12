@@ -767,14 +767,12 @@ function renderLifts() {
     drawLiftChart(entries);
     return;
   }
-  // list ordered: program exercises first (current block), then the rest
+  // grouped by equipment; within each group: current-block lifts first
   const progOrder = (ad.progress || []).map(p => p.n);
+  const eq = ad.lift_equip || {};
   const names = [...new Set([...progOrder, ...Object.keys(lh)])].filter(n => lh[n]);
-  v.innerHTML = `
-  <div class="eyebrow"><span>LIFTS</span><span class="date">${names.length} EXERCISES</span></div>
-  <h1 class="big" style="font-size:34px">LIFT<span class="accent" style="color:var(--gold)">HISTORY</span></h1>
-  <div class="subtitle">TAP A LIFT FOR ITS FULL STORY</div>
-  <div class="card">` + names.map(n => {
+  const GROUPS = [['DB', 'Dumbbells 🏋️'], ['Machine', 'Machines ⚙️'], ['BW', 'Bodyweight 🤸']];
+  const row = n => {
     const e = lh[n][lh[n].length - 1];
     const prog = (ad.progress || []).find(p => p.n === n);
     const inBlock = progOrder.includes(n);
@@ -782,8 +780,18 @@ function renderLifts() {
       <div class="nm" style="${inBlock ? '' : 'color:var(--mut)'}">${esc(n)}</div>
       <div class="sub">${esc(e.d)} · ${esc(e.wr)} × ${esc(e.r)}${prog ? ` · <span class="st ${prog.cls}" style="font-size:11px">${esc(prog.status)}</span>` : ''}</div>
     </div><div class="arrow">›</div></div>`;
-  }).join('') + `</div>
-  <div class="scrollhint">GRAYED LIFTS = NOT IN THE CURRENT BLOCK</div>`;
+  };
+  v.innerHTML = `
+  <div class="eyebrow"><span>LIFTS</span><span class="date">${names.length} EXERCISES</span></div>
+  <h1 class="big" style="font-size:34px">LIFT<span class="accent" style="color:var(--gold)">HISTORY</span></h1>
+  <div class="subtitle">TAP A LIFT FOR ITS FULL STORY</div>` +
+  GROUPS.map(([t, label]) => {
+    const group = names.filter(n => (eq[n] || 'DB') === t);
+    if (!group.length) return '';
+    group.sort((a, b) => (progOrder.includes(b) - progOrder.includes(a)) || a.localeCompare(b));
+    return `<h3 class="sec">${label.toUpperCase()}</h3><div class="card">` + group.map(row).join('') + `</div>`;
+  }).join('') +
+  `<div class="scrollhint">GRAYED LIFTS = NOT IN THE CURRENT BLOCK</div>`;
   v.querySelectorAll('[data-lift]').forEach(el => el.onclick = () => { selLift = el.dataset.lift; renderLifts(); });
 }
 
