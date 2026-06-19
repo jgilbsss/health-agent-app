@@ -568,15 +568,20 @@ function drawChart(hist) {
     const sc = scales[m.id];
     if (!sc) continue;
     const y = v => padT + (H - padT - padB) * (1 - (v - sc.lo) / (sc.hi - sc.lo));
+    // collect actual samples; sparse metrics (e.g. weight, logged every 1-2 wks)
+    // connect across the null days between weigh-ins instead of breaking the line
+    const pts = [];
+    rows.forEach((r, i) => { const v = r[m.id]; if (v != null) pts.push([x(i), y(v)]); });
+    if (!pts.length) continue;
     ctx.strokeStyle = m.color; ctx.lineWidth = 2; ctx.lineJoin = 'round';
     ctx.beginPath();
-    let started = false;
-    rows.forEach((r, i) => {
-      const v = r[m.id];
-      if (v == null) { started = false; return; }
-      if (!started) { ctx.moveTo(x(i), y(v)); started = true; } else ctx.lineTo(x(i), y(v));
-    });
+    pts.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
     ctx.stroke();
+    // dot each sample so sparse series stay visible (esp. a lone weigh-in)
+    if (pts.length <= 20) {
+      ctx.fillStyle = m.color;
+      for (const p of pts) { ctx.beginPath(); ctx.arc(p[0], p[1], 2.6, 0, 7); ctx.fill(); }
+    }
   }
   // scrub hairline + dots
   if (scrubIdx != null && rows[scrubIdx]) {
