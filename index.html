@@ -274,6 +274,7 @@ const METRICS = [
 let tab = 'today';
 let selDate = isoToday();
 let selLift = null;
+let liftMetric = 'e1rm';
 let range = +(localStorage.getItem('ha_range') || 30);
 let metricState = JSON.parse(localStorage.getItem('ha_metrics') || 'null') || { rhr:true, hrv:true, slp:false, st:false, wt:false };
 let scrubIdx = null, chartRows = [];
@@ -562,7 +563,9 @@ function renderToday() {
     const q = store.queue.filter(s => s.date !== d.date);
     q.push(payload);
     store.queue = q;
+    const prs = detectPRs(payload);
     syncAll($('tstatus'));
+    showPRCelebration(prs);
   };
   const sn = $('syncnow2');
   if (sn) sn.onclick = () => syncAll($('tstatus'));
@@ -686,6 +689,90 @@ function bindScrub() {
   cv.addEventListener('mousemove', e => { if (e.buttons) move(e); });
   cv.addEventListener('touchend', () => setTimeout(() => { scrubIdx = null; drawChart(hist); scrubReadout(); }, 1800));
 }
+/* ---- muscle map: attribute weekly logged sets to body regions ---- */
+const MUSCLE_KW = [
+  ['pec','chest'],['chest','chest'],
+  ['tricep','triceps'],
+  ['bicep','biceps'],['brachii','biceps'],['brachialis','biceps'],
+  ['forearm','forearms'],['brachioradialis','forearms'],['grip','forearms'],['wrist','forearms'],
+  ['delt','shoulders'],['shoulder','shoulders'],
+  ['latissimus','back'],['lat','back'],['trap','back'],['rhomboid','back'],['erector','back'],['spinae','back'],['upper back','back'],['mid back','back'],['middle back','back'],['back','back'],
+  ['quad','quads'],['adductor','quads'],['inner thigh','quads'],
+  ['hamstring','hamstrings'],
+  ['glute','glutes'],['abductor','glutes'],['outer thigh','glutes'],
+  ['calf','calves'],['calve','calves'],['gastro','calves'],['soleus','calves'],
+  ['core','core'],['abdomin','core'],['oblique','core'],['abs','core'],
+];
+function muscleToRegion(phrase) { const p = String(phrase).toLowerCase(); for (const [kw, reg] of MUSCLE_KW) if (p.includes(kw)) return reg; return null; }
+function regionsForText(txt) {
+  const parts = String(txt || '').split(/secondary:/i);
+  const P = new Set(), S = new Set();
+  (parts[0] || '').replace(/·/g, ' ').split(',').forEach(m => { const r = muscleToRegion(m); if (r) P.add(r); });
+  (parts[1] || '').split(',').forEach(m => { const r = muscleToRegion(m); if (r && !P.has(r)) S.add(r); });
+  return { primary: [...P], secondary: [...S] };
+}
+function muscleWeek() {
+  const ad = store.appdata || {}, lh = ad.lifts_history || {}, exinfo = ad.exinfo || {};
+  const mon = mondayOf(isoToday()), reg = {};
+  const add = (r, n) => { if (r) reg[r] = (reg[r] || 0) + n; };
+  for (const name of Object.keys(lh)) {
+    const info = exinfo[norm(name)] || {}, rr = regionsForText(info.muscles);
+    if (!rr.primary.length && !rr.secondary.length) continue;
+    let sets = 0;
+    for (const e of lh[name]) { if (e.d < mon) continue; sets += String(e.r || '').split(',').filter(x => x.trim() !== '').length; }
+    if (!sets) continue;
+    rr.primary.forEach(r => add(r, sets));
+    rr.secondary.forEach(r => add(r, sets * 0.5));
+  }
+  return reg;
+}
+function muscleState(s) { if (!s) return 'under'; if (s < 8) return 'low'; if (s <= 20) return 'opt'; return 'high'; }
+const MSTATE_COL = { under: '#3a4150', low: '#e0b54e', opt: '#5cc7e6', high: '#e0655f' };
+function cap1(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function muscleMapSection() {
+  const reg = muscleWeek();
+  const col = r => MSTATE_COL[muscleState(reg[r] || 0)];
+  const ALLREG = ['chest','shoulders','back','biceps','triceps','forearms','core','quads','hamstrings','glutes','calves'];
+  const under = ALLREG.filter(r => (reg[r] || 0) > 0 && (reg[r] || 0) < 8);
+  const missing = ALLREG.filter(r => !(reg[r] > 0));
+  const front = `<svg viewBox="0 0 120 200" width="94"><g>
+    <circle cx="60" cy="15" r="9" fill="#2a3340"/>
+    <ellipse cx="42" cy="38" rx="11" ry="7" fill="${col('shoulders')}"/><ellipse cx="78" cy="38" rx="11" ry="7" fill="${col('shoulders')}"/>
+    <rect x="41" y="41" width="17" height="18" rx="5" fill="${col('chest')}"/><rect x="62" y="41" width="17" height="18" rx="5" fill="${col('chest')}"/>
+    <ellipse cx="30" cy="57" rx="6" ry="11" fill="${col('biceps')}"/><ellipse cx="90" cy="57" rx="6" ry="11" fill="${col('biceps')}"/>
+    <ellipse cx="26" cy="79" rx="5" ry="11" fill="${col('forearms')}"/><ellipse cx="94" cy="79" rx="5" ry="11" fill="${col('forearms')}"/>
+    <rect x="51" y="61" width="18" height="26" rx="5" fill="${col('core')}"/>
+    <rect x="44" y="92" width="14" height="34" rx="5" fill="${col('quads')}"/><rect x="62" y="92" width="14" height="34" rx="5" fill="${col('quads')}"/>
+    <ellipse cx="51" cy="152" rx="7" ry="16" fill="${col('calves')}"/><ellipse cx="69" cy="152" rx="7" ry="16" fill="${col('calves')}"/>
+    </g></svg>`;
+  const back = `<svg viewBox="0 0 120 200" width="94"><g>
+    <circle cx="60" cy="15" r="9" fill="#2a3340"/>
+    <ellipse cx="42" cy="38" rx="11" ry="7" fill="${col('shoulders')}"/><ellipse cx="78" cy="38" rx="11" ry="7" fill="${col('shoulders')}"/>
+    <rect x="44" y="40" width="32" height="22" rx="5" fill="${col('back')}"/>
+    <ellipse cx="30" cy="57" rx="6" ry="11" fill="${col('triceps')}"/><ellipse cx="90" cy="57" rx="6" ry="11" fill="${col('triceps')}"/>
+    <ellipse cx="26" cy="79" rx="5" ry="11" fill="${col('forearms')}"/><ellipse cx="94" cy="79" rx="5" ry="11" fill="${col('forearms')}"/>
+    <rect x="46" y="64" width="28" height="13" rx="5" fill="${col('glutes')}"/>
+    <rect x="44" y="80" width="14" height="32" rx="5" fill="${col('hamstrings')}"/><rect x="62" y="80" width="14" height="32" rx="5" fill="${col('hamstrings')}"/>
+    <ellipse cx="51" cy="148" rx="7" ry="16" fill="${col('calves')}"/><ellipse cx="69" cy="148" rx="7" ry="16" fill="${col('calves')}"/>
+    </g></svg>`;
+  const note = missing.length ? `<b>${missing.slice(0, 3).map(cap1).join(', ')}</b> untrained this week.`
+    : under.length ? `<b>${under.map(cap1).join(', ')}</b> below target — add a set or two.`
+    : `Balanced volume across the board. Nice.`;
+  return `<h3 class="sec">Muscle map · this week</h3>
+  <div class="card">
+    <div style="display:flex;gap:10px;justify-content:center;align-items:flex-start">
+      <div style="text-align:center">${front}<div style="font-size:10px;color:var(--mut);letter-spacing:1px">FRONT</div></div>
+      <div style="text-align:center">${back}<div style="font-size:10px;color:var(--mut);letter-spacing:1px">BACK</div></div>
+    </div>
+    <div class="legend" style="justify-content:center;margin-top:8px">
+      <span><span class="dot" style="background:#5cc7e6"></span>on target</span>
+      <span><span class="dot" style="background:#e0b54e"></span>building</span>
+      <span><span class="dot" style="background:#e0655f"></span>high</span>
+      <span><span class="dot" style="background:#3a4150"></span>untrained</span>
+    </div>
+    <div style="font-size:12.5px;color:var(--mut);text-align:center;margin-top:8px;line-height:1.5">${note}</div>
+  </div>`;
+}
 function renderDash() {
   const ad = store.appdata;
   const v = $('view');
@@ -709,6 +796,8 @@ function renderDash() {
   <div class="card verdict"><div class="v ${r.cls}">${esc(r.verdict)}</div>
     <div class="adv">${esc(r.advice)}</div>
     <div class="sigs">${(r.signals || []).map(s => `<span class="sig s${s[0]}">${esc(s[1])}</span>`).join('')}</div></div>
+
+  ${muscleMapSection()}
 
   <h3 class="sec">Trends</h3>
   <div class="card">
@@ -773,6 +862,67 @@ function renderDash() {
 }
 
 /* ---------------- LIFTS ---------------- */
+// Epley estimated 1-rep max from the best set of a logged session
+function epley(w, reps) { w = +w; reps = +reps; if (!(w > 0)) return null; if (!(reps > 0)) return w; return w * (1 + reps / 30); }
+function entryE1RM(e) {
+  const ws = String(e.wr != null ? e.wr : '').split(',').map(s => parseFloat(s)).filter(v => !isNaN(v));
+  const rs = String(e.r != null ? e.r : '').split(',').map(s => parseInt(s, 10)).filter(v => !isNaN(v));
+  if (!ws.length || !rs.length) return e.w != null ? +e.w : null;
+  let best = null;
+  for (let i = 0; i < rs.length; i++) {
+    const w = ws.length === 1 ? ws[0] : (ws[i] != null ? ws[i] : ws[ws.length - 1]);
+    const v = epley(w, rs[i]);
+    if (v != null && (best == null || v > best)) best = v;
+  }
+  return best != null ? Math.round(best) : (e.w != null ? +e.w : null);
+}
+function liftVal(e) { return liftMetric === 'e1rm' ? entryE1RM(e) : (e.w != null ? +e.w : null); }
+/* ---- personal-record detection (client-side, from lifts_history) ---- */
+function sessE1RM(sets) { let best = null; for (const s of sets || []) { const v = epley(parseFloat(s.weight), parseInt(s.reps, 10)); if (v != null && (best == null || v > best)) best = v; } return best != null ? Math.round(best) : null; }
+function sessMaxWeight(sets) { let m = null; for (const s of sets || []) { const w = parseFloat(s.weight); if (!isNaN(w) && (m == null || w > m)) m = w; } return m; }
+function histBest(liftName, excludeDate) {
+  const lh = (store.appdata || {}).lifts_history || {};
+  const key = lh[liftName] ? liftName : Object.keys(lh).find(k => norm(k) === norm(liftName));
+  const entries = key ? lh[key] : [];
+  let bestE = null, bestW = null, n = 0;
+  for (const e of entries) {
+    if (excludeDate && e.d === excludeDate) continue;
+    n++; const v = entryE1RM(e); if (v != null && (bestE == null || v > bestE)) bestE = v;
+    const w = e.w != null ? +e.w : null; if (w != null && (bestW == null || w > bestW)) bestW = w;
+  }
+  return { e1rm: bestE, weight: bestW, count: n };
+}
+function detectPRs(payload) {
+  const prs = [];
+  for (const ex of payload.exercises || []) {
+    if (!ex.sets || !ex.sets.length) continue;
+    const b = histBest(ex.name, payload.date);
+    if (b.count === 0) continue;                 // no prior history → no PR baseline
+    const e = sessE1RM(ex.sets), w = sessMaxWeight(ex.sets);
+    if (e != null && b.e1rm != null && e > b.e1rm) prs.push({ lift: ex.name, kind: 'est. 1RM', val: e + ' lb', delta: '+' + (e - b.e1rm) });
+    else if (w != null && b.weight != null && w > b.weight) prs.push({ lift: ex.name, kind: 'top weight', val: w + ' lb', delta: '+' + (+(w - b.weight).toFixed(1)) });
+  }
+  return prs;
+}
+function showPRCelebration(prs) {
+  if (!prs || !prs.length) return;
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100;background:rgba(7,9,13,.74);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px;';
+  const rows = prs.map(p => `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)">
+    <div style="width:30px;height:30px;border-radius:50%;background:rgba(92,199,230,.18);color:var(--gold);display:flex;align-items:center;justify-content:center">🏆</div>
+    <div style="flex:1"><div style="font-weight:700;font-size:14px">${esc(p.lift)}</div><div style="font-size:12px;color:var(--mut)">${esc(p.kind)} PR · ${esc(p.val)}</div></div>
+    <div style="color:var(--green);font-weight:800;font-size:13px">${esc(p.delta)}</div></div>`).join('');
+  ov.innerHTML = `<div class="card" style="max-width:360px;width:100%;text-align:center">
+    <div style="font-size:42px">🏆</div>
+    <div style="font-size:26px;font-weight:850;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin:4px 0">${prs.length} PR${prs.length > 1 ? 's' : ''}!</div>
+    <div style="font-size:13px;color:var(--mut);margin-bottom:8px">Logged to your record book</div>
+    <div style="text-align:left;margin:8px 0">${rows}</div>
+    <button class="bigbtn" id="prdismiss" style="margin-top:10px">Let's go 💪</button></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#prdismiss').onclick = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) ov.remove(); };
+  if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+}
 function drawLiftChart(entries) {
   const cv = $('liftchart');
   if (!cv) return;
@@ -781,24 +931,24 @@ function drawLiftChart(entries) {
   cv.width = W * dpr; cv.height = H * dpr;
   const ctx = cv.getContext('2d');
   ctx.scale(dpr, dpr);
-  const pts = entries.filter(e => e.w != null);
-  if (pts.length < 2) { ctx.fillStyle = '#8d877a'; ctx.font = '12px -apple-system'; ctx.fillText('Not enough sessions to chart yet', 10, H / 2); return; }
+  const pts = entries.map(e => ({ d: e.d, v: liftVal(e) })).filter(p => p.v != null);
+  if (pts.length < 2) { ctx.fillStyle = '#7f8a9c'; ctx.font = '12px -apple-system'; ctx.fillText('Not enough sessions to chart yet', 10, H / 2); return; }
   const padL = 34, padR = 8, padT = 10, padB = 20;
-  let lo = Math.min(...pts.map(p => p.w)), hi = Math.max(...pts.map(p => p.w));
+  let lo = Math.min(...pts.map(p => p.v)), hi = Math.max(...pts.map(p => p.v));
   if (hi - lo < 1e-9) { hi += 5; lo -= 5; }
   const x = i => padL + (W - padL - padR) * i / (pts.length - 1);
   const y = v => padT + (H - padT - padB) * (1 - (v - lo) / (hi - lo));
-  ctx.strokeStyle = '#221f17';
+  ctx.strokeStyle = '#27303f';
   [0, .5, 1].forEach(f => { ctx.beginPath(); ctx.moveTo(padL, padT + (H - padT - padB) * f); ctx.lineTo(W - padR, padT + (H - padT - padB) * f); ctx.stroke(); });
-  ctx.fillStyle = '#d4a843'; ctx.font = '600 10px -apple-system'; ctx.textAlign = 'right';
-  ctx.fillText(String(hi), padL - 5, y(hi) + 3); ctx.fillText(String(lo), padL - 5, y(lo) + 3);
-  ctx.strokeStyle = '#d4a843'; ctx.lineWidth = 2;
+  ctx.fillStyle = '#5cc7e6'; ctx.font = '600 10px -apple-system'; ctx.textAlign = 'right';
+  ctx.fillText(String(Math.round(hi)), padL - 5, y(hi) + 3); ctx.fillText(String(Math.round(lo)), padL - 5, y(lo) + 3);
+  ctx.strokeStyle = '#5cc7e6'; ctx.lineWidth = 2;
   ctx.beginPath();
-  pts.forEach((p, i) => i ? ctx.lineTo(x(i), y(p.w)) : ctx.moveTo(x(i), y(p.w)));
+  pts.forEach((p, i) => i ? ctx.lineTo(x(i), y(p.v)) : ctx.moveTo(x(i), y(p.v)));
   ctx.stroke();
-  ctx.fillStyle = '#d4a843';
-  pts.forEach((p, i) => { ctx.beginPath(); ctx.arc(x(i), y(p.w), 3, 0, 7); ctx.fill(); });
-  ctx.fillStyle = '#8d877a'; ctx.font = '10px -apple-system'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#5cc7e6';
+  pts.forEach((p, i) => { ctx.beginPath(); ctx.arc(x(i), y(p.v), 3, 0, 7); ctx.fill(); });
+  ctx.fillStyle = '#7f8a9c'; ctx.font = '10px -apple-system'; ctx.textAlign = 'center';
   [0, pts.length - 1].forEach(i => ctx.fillText(pts[i].d.slice(5), x(i), H - 5));
 }
 function renderLifts() {
@@ -818,12 +968,21 @@ function renderLifts() {
     ${demoCard(selLift)}
     ${info.muscles ? `<div class="tip">💪 ${esc(info.muscles)}</div>` : ''}
     ${(info.setup || info.cue) ? `<div class="tip" style="color:var(--blue)">📘 <b style="color:var(--blue)">How to:</b> ${esc(info.setup || info.cue)}${info.setup && info.cue ? '<br><span style="color:var(--mut)">' + esc(info.cue) + '</span>' : ''}</div>` : ''}
-    <div class="card"><canvas id="liftchart"></canvas></div>
+    <div class="card">
+      <div class="togglerow" style="margin-bottom:10px">
+        <button class="tg" data-lm="e1rm" style="${liftMetric === 'e1rm' ? 'background:#5cc7e6;color:#06121a;border-color:#5cc7e6' : ''}">EST. 1RM</button>
+        <button class="tg" data-lm="weight" style="${liftMetric === 'weight' ? 'background:#5cc7e6;color:#06121a;border-color:#5cc7e6' : ''}">TOP WEIGHT</button>
+        ${(() => { const e1 = entries.map(entryE1RM).filter(v => v != null); return e1.length ? `<span style="margin-left:auto;font-size:12px;color:var(--gold);font-weight:800">best e1RM ${Math.max(...e1)}</span>` : ''; })()}
+      </div>
+      <canvas id="liftchart"></canvas>
+      <div style="text-align:center;font-size:11px;color:var(--mut);margin-top:6px">${liftMetric === 'e1rm' ? 'Estimated 1-rep max (Epley) — best set each session' : 'Top weight each session'}</div>
+    </div>
     ${sw ? `<div class="tip"><b>Machine taken?</b> Swap for: ${esc(sw)}</div>` : ''}
     <div class="card">` + entries.slice().reverse().map(e => `
       <div class="hrow"><div><div class="nm">${esc(e.d)}</div>${e.note ? `<div class="hnote">${esc(e.note)}</div>` : ''}</div>
       <div class="det">${esc(e.wr)} × ${esc(e.r)}${e.rpe ? ' @' + esc(e.rpe) : ''}</div></div>`).join('') + `</div>`;
     $('back').onclick = () => { selLift = null; renderLifts(); };
+    v.querySelectorAll('[data-lm]').forEach(b => b.onclick = () => { liftMetric = b.dataset.lm; renderLifts(); });
     drawLiftChart(entries);
     return;
   }
@@ -845,6 +1004,13 @@ function renderLifts() {
   <div class="eyebrow"><span>LIFTS</span><span class="date">${names.length} EXERCISES</span></div>
   <h1 class="big" style="font-size:34px">LIFT<span class="accent" style="color:var(--gold)">HISTORY</span></h1>
   <div class="subtitle">TAP A LIFT FOR ITS FULL STORY</div>` +
+  (() => {
+    const cab = Object.keys(lh).map(n => { let best = null, bd = ''; for (const e of lh[n]) { const x = entryE1RM(e); if (x != null && (best == null || x > best)) { best = x; bd = e.d; } } return best != null ? { n, best, bd } : null; })
+      .filter(Boolean).sort((a, b) => b.best - a.best);
+    if (!cab.length) return '';
+    return `<details class="moreblock" open><summary>🏆 Personal records · est. 1RM</summary>
+      <div class="card progbox">` + cab.map(c => `<div class="hrow"><div class="nm">${esc(c.n)}</div><div class="det"><b style="color:var(--gold)">${c.best} lb</b> · ${esc(c.bd)}</div></div>`).join('') + `</div></details>`;
+  })() +
   GROUPS.map(([t, label]) => {
     const group = names.filter(n => (eq[n] || 'DB') === t);
     if (!group.length) return '';
