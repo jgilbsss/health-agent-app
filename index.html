@@ -6,12 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Health Agent">
-<meta name="theme-color" content="#0d0c0a">
+<meta name="theme-color" content="#0a0d13">
 <title>Health Agent</title>
 <style>
 :root {
-  --bg:#0d0c0a; --card:#17150f; --card2:#1d1a13; --line:#2a261c;
-  --txt:#f4f1ea; --mut:#8d877a; --gold:#d4a843; --orange:#e06c3a;
+  --bg:#0a0d13; --card:#141a24; --card2:#1a2230; --line:#27303f;
+  --txt:#eef2f8; --mut:#7f8a9c; --gold:#5cc7e6; --orange:#d99a4e;
   --blue:#5aa9e6; --green:#5cb87a; --red:#e05a5a; --purple:#b08fe0;
   --safe-top:env(safe-area-inset-top,0px); --safe-bot:env(safe-area-inset-bottom,0px);
 }
@@ -167,8 +167,59 @@ label.f { display:block; font-size:11px; letter-spacing:1.5px; text-transform:up
 input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); color:var(--txt); border:1px solid var(--line); border-radius:12px; padding:12px; }
 .queuebadge { font-size:11px; color:var(--orange); }
 </style>
+<style>
+/* ===== iOS 26 "Liquid Glass" overlay — purely visual, no logic touched ===== */
+:root { --glass:rgba(28,36,50,0.44); --glass2:rgba(255,255,255,0.06);
+  --hair:rgba(255,255,255,0.14); --hi:rgba(255,255,255,0.22); }
+html,body { background:#07090d; }
+.bgfx { position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none; }
+.bgfx i { position:absolute; display:block; border-radius:50%; filter:blur(60px); }
+.bgfx .x1 { width:46vh; height:46vh; background:#3a7bd5; opacity:.30; top:-8vh; left:-12vh; }
+.bgfx .x2 { width:40vh; height:40vh; background:#5cc7e6; opacity:.24; top:34vh; right:-14vh; }
+.bgfx .x3 { width:44vh; height:44vh; background:#6f5ce6; opacity:.18; bottom:6vh; left:-10vh; }
+.bgfx .x4 { width:38vh; height:38vh; background:#5aa9e6; opacity:.16; bottom:24vh; right:-10vh; }
+.card,.tip,.stat { background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5); backdrop-filter:blur(18px) saturate(1.5);
+  border:1px solid var(--hair);
+  box-shadow:inset 0 1px 0 var(--hi), inset 0 -10px 20px rgba(0,0,0,.16), 0 6px 18px rgba(0,0,0,.28); }
+.setrow input,select,.noteinput,textarea.f,input.f,.setf { background:var(--glass2); border-color:var(--hair); }
+.setnum,.checkbtn,.restpill,.tbtn { background:var(--glass2); border-color:var(--hair); }
+.chip,.tg,.rg { background:var(--glass2); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+.bigbtn { border:1px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 6px 16px rgba(0,0,0,.3); }
+.bigbtn.ghost { background:var(--glass2); border:1px solid var(--hair); box-shadow:none; }
+#tabs { left:12px; right:12px; bottom:calc(var(--safe-bot) + 10px);
+  background:rgba(20,18,13,0.5); -webkit-backdrop-filter:blur(24px) saturate(1.7);
+  backdrop-filter:blur(24px) saturate(1.7); border:1px solid var(--hair); border-radius:22px;
+  box-shadow:inset 0 1px 0 var(--hi), 0 8px 24px rgba(0,0,0,.45); padding-bottom:0; }
+#tabs button { padding:12px 0; }
+#tabs .gear { flex:0 0 46px; font-size:17px; }
+#timerbar { left:12px; right:12px; bottom:calc(var(--safe-bot) + 78px); border-radius:18px;
+  border:1px solid var(--hair); background:rgba(20,18,13,0.55);
+  -webkit-backdrop-filter:blur(24px) saturate(1.7); backdrop-filter:blur(24px) saturate(1.7);
+  box-shadow:inset 0 1px 0 var(--hi), 0 8px 24px rgba(0,0,0,.45); }
+.exfoot { flex-direction:column; align-items:stretch; }
+.exmore summary { list-style:none; cursor:pointer; font-size:11px; letter-spacing:1px;
+  text-transform:uppercase; color:var(--mut); padding:7px 0; }
+.exmore summary::-webkit-details-marker { display:none; }
+.exmore summary::before { content:"\2295  "; color:var(--gold); }
+.exmore[open] summary::before { content:"\2296  "; }
+.exmore .rpewrap { margin-top:2px; }
+.exmore .noteinput { margin-top:8px; width:100%; }
+.moreblock { margin:4px 0 12px; }
+.moreblock > summary { cursor:pointer; list-style:none; font-size:11px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--gold); padding:13px 15px; border:1px solid var(--hair);
+  border-radius:14px; background:var(--glass); -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px); display:flex; align-items:center; gap:8px; }
+.moreblock > summary::-webkit-details-marker { display:none; }
+.moreblock > summary::after { content:"\25BE"; margin-left:auto; }
+.moreblock[open] > summary::after { content:"\25B4"; }
+.v.yellow { color:#e0b54e; }
+.sig.s1 { color:#e0b54e; border-color:#4a3f1d; }
+</style>
 </head>
 <body>
+<div class="bgfx"><i class="x1"></i><i class="x2"></i><i class="x3"></i><i class="x4"></i></div>
 <div id="view"></div>
 
 <div id="timerbar"><div id="timerprog"></div>
@@ -182,11 +233,11 @@ input.f { width:100%; font:inherit; font-size:14px; background:var(--card2); col
 
 <div id="tabs">
   <button data-tab="today" class="sel">Today</button>
-  <button data-tab="dash">Dash</button>
+  <button data-tab="dash">Stats</button>
   <button data-tab="lifts">Lifts</button>
   <button data-tab="coach">Coach</button>
   <button data-tab="plan">Plan</button>
-  <button data-tab="settings">Setup</button>
+  <button data-tab="settings" class="gear" aria-label="Setup">&#9881;</button>
 </div>
 
 <script>
@@ -211,14 +262,14 @@ const store = {
 };
 
 const WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const ACCENTS = { 'Push A':'#d4a843','Push B':'#d4a843','Pull A':'#cfc9bd','Pull B':'#cfc9bd',
-                  'Legs A':'#e06c3a','Legs B':'#e06c3a','REST':'#5cb87a' };
+const ACCENTS = { 'Push A':'#5cc7e6','Push B':'#5cc7e6','Pull A':'#cfd6e0','Pull B':'#cfd6e0',
+                  'Legs A':'#7d8cf0','Legs B':'#7d8cf0','REST':'#5cb87a' };
 const METRICS = [
   { id:'rhr', label:'RHR', color:'#e05a5a', unit:'bpm' },
   { id:'hrv', label:'HRV', color:'#5aa9e6', unit:'ms' },
   { id:'slp', label:'SLEEP', color:'#b08fe0', unit:'h' },
   { id:'st',  label:'STEPS', color:'#9a9384', unit:'' },
-  { id:'wt',  label:'WEIGHT', color:'#d4a843', unit:'lb' },
+  { id:'wt',  label:'WEIGHT', color:'#5cc7e6', unit:'lb' },
 ];
 let tab = 'today';
 let selDate = isoToday();
@@ -459,8 +510,10 @@ function renderToday() {
         <button class="checkbtn">✓</button></div>`).join('') +
       `</div><div class="exfoot">
         <span class="restpill ${extNote ? 'ext' : ''}">⏱ ${ex.rest || 90}s${extNote ? ' · ' + esc(extNote) : ''}</span>
+        <details class="exmore" ${ex.rpe || ex.note ? 'open' : ''}><summary>RPE &amp; note</summary>
         <span class="rpewrap">RPE <select data-f="rpe">${['',6,6.5,7,7.5,8,8.5,9,9.5,10].map(r => `<option ${String(ex.rpe) === String(r) ? 'selected' : ''}>${r}</option>`).join('')}</select></span>
         <input class="noteinput" data-f="note" placeholder="note" value="${esc(ex.note)}">
+        </details>
       </div></div>`;
   });
 
@@ -671,6 +724,7 @@ function renderDash() {
     <div class="stat"><div class="num" style="color:var(--gold)">${a.streak ?? '—'}</div><div class="lbl">Session streak</div></div>
   </div>
 
+  <details class="moreblock"><summary>More stats — tonnage · calendar · sleep · weight · progression</summary>
   <h3 class="sec">Weekly tonnage (lb lifted)</h3>
   <div class="card"><div class="wkbars">${ton.map(t =>
     `<div class="wkbar ${t.lb === 0 ? 'dim' : ''}"><div class="val">${t.lb ? (t.lb / 1000).toFixed(1) + 'k' : '—'}</div>
@@ -702,6 +756,7 @@ function renderDash() {
   <div class="card"><div class="progbox bumps">${(ad.progress || []).map(p =>
     `<div class="row"><div><b>${esc(p.n)}</b><br><span style="color:var(--mut);font-size:12px">${esc(p.last)}</span></div><div class="st ${p.cls}">${esc(p.status)}</div></div>`).join('') || '—'}</div>
   <div class="scrollhint">SCROLL FOR ALL LIFTS ↓</div></div>
+  </details>
   <div class="status">Pushed by your Mac at ${esc(ad.generated || '?')}</div>`;
 
   v.querySelectorAll('[data-range]').forEach(b => b.onclick = () => {
@@ -869,23 +924,26 @@ function renderPlan() {
       <div><div class="nm">${esc(p.phase)}${cur ? ' ←' : ''}</div><div class="nt">RPE cap ${p.rpe_cap} · ${esc(p.note || '')}</div></div></div>`;
   }).join('')}</div>
 
-  <h3 class="sec">The week</h3>
+  <h3 class="sec">The week — tap a day to expand</h3>
   <div class="card">${WEEKDAYS.map(w => {
-    const s = ad.schedule[w];
-    return `<div class="hrow"><div class="nm" style="${s === 'REST' ? 'color:var(--mut)' : ''}">${w}</div><div class="det" style="color:${ACCENTS[s] || 'var(--mut)'}">${esc(s)}</div></div>`;
-  }).join('')}</div>
-
-  <h3 class="sec">Sessions — tap to expand</h3>
-  <div class="card">${Object.entries(ad.sessions).map(([sname, sess]) => `
-    <div class="sessacc" data-s="${esc(sname)}">
-      <div class="head"><span style="color:${ACCENTS[sname] || 'var(--txt)'}">${esc(sname)}</span>
-      <span class="day">${esc(sess.focus || '')} ›</span></div>
+    const sname = ad.schedule[w];
+    const sess = ad.sessions[sname];
+    const accent = ACCENTS[sname] || 'var(--mut)';
+    if (!sess) {
+      return `<div class="sessacc"><div class="head" style="cursor:default">
+        <span style="color:var(--mut)">${w}</span>
+        <span style="color:${accent};font-weight:700">${esc(sname)}</span></div></div>`;
+    }
+    return `<div class="sessacc" data-s="${esc(sname)}">
+      <div class="head"><span>${w}</span>
+        <span style="font-weight:700;color:${accent}">${esc(sname)} <span class="day">${esc(sess.focus || '')} ›</span></span></div>
       <div class="body">${sess.exercises.map(ex => `
         <div class="pexrow"><b>${esc(ex.name)}</b> <span class="tg2">— ${ex.sets}×${ex.rep_low}–${ex.rep_high}${ex.prefill_weight ? ' @ ' + ex.prefill_weight : ''} · rest ${ex.rest_sec}s</span>
         ${ex.desc ? `<div class="mnote">${esc(ex.desc)}</div>` : ex.type === 'Machine' && machineNote(ex.name) ? `<div class="mnote">⚙️ ${esc(machineNote(ex.name))}</div>` : ''}
         </div>`).join('')}</div>
-    </div>`).join('')}</div>`;
-  v.querySelectorAll('.sessacc .head').forEach(h => h.onclick = () => h.parentElement.classList.toggle('open'));
+    </div>`;
+  }).join('')}</div>`;
+  v.querySelectorAll('.sessacc .head').forEach(h => { if (h.parentElement.querySelector('.body')) h.onclick = () => h.parentElement.classList.toggle('open'); });
 }
 
 /* ---------------- SETTINGS ---------------- */
