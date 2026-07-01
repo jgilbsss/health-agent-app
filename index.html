@@ -377,9 +377,18 @@ function tickTimer() {
   $('timerprog').style.width = (100 - left / timer.total * 100) + '%';
 }
 let audioCtx = null;
+// 'ambient' = mix with other apps' audio (Spotify keeps playing, chime plays over it)
+// instead of iOS's default exclusive session that pauses/ducks background music.
+function setAmbientSession() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'ambient'; } catch (e) {}
+}
 function ensureAudio() {
-  try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); }
-  catch (e) { return null; }
+  try {
+    if (!audioCtx) {
+      setAmbientSession();
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  } catch (e) { return null; }
   return audioCtx;
 }
 // iOS/Safari suspend the AudioContext until a user gesture unlocks it, and
