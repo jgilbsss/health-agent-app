@@ -1101,7 +1101,7 @@ function renderCoach() {
     <textarea class="f msgbox" id="msg" placeholder="Shoulder felt tweaky on presses… / leg press seat is 5 now / can we talk deload?"></textarea>
     <button class="bigbtn" id="sendmsg" style="margin-top:4px">Send</button>
     ${mq.length ? `<div class="msgqueued">📤 ${mq.length} message(s) queued for next sync</div>` : ''}
-    <div class="status" id="mstatus">Read at the 7:42 am and 9:06 pm runs · replies appear below</div>
+    <div class="status" id="mstatus">Delivered within ~10 min · coach replies land at the 7:30 am / 9 pm runs, below</div>
   </div>
   ${c.reply ? `<h3 class="sec">Coach reply</h3><div class="card recap">${mdLite(c.reply)}</div>` : ''}
 
@@ -1125,7 +1125,7 @@ function renderPlan() {
   const v = $('view');
   if (!ad || !ad.sessions) { v.innerHTML = '<div class="restcard"><div class="emoji">🗺️</div><h2>No data</h2><p style="color:var(--mut)">Sync in Setup first.</p></div>'; return; }
   const b = ad.block || {};
-  const curWeek = b.start ? Math.floor((new Date(isoToday()) - new Date(b.start + 'T12:00:00')) / 864e5 / 7) + 1 : 0;
+  const curWeek = b.start ? Math.floor(Math.round((new Date(isoToday() + 'T12:00:00') - new Date(b.start + 'T12:00:00')) / 864e5) / 7) + 1 : 0; // noon-to-noon: exact day count (UTC-parse vs local-noon skew showed last week's number all Monday)
   const machineNote = name => {
     const n = norm(name);
     for (const [k, note] of Object.entries(ad.machine_notes || {}))
@@ -1180,7 +1180,7 @@ function renderSettings() {
     <button class="bigbtn" id="saveset">Save & test</button>
     <div class="status" id="sstatus">${store.queue.length + store.msgq.length ? (store.queue.length + store.msgq.length) + ' item(s) queued for upload' : ''}</div>
   </div>
-  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — never part of the hosted page. Logged sets and messages queue locally and upload when you have signal; your Mac ingests them at 7:42 am and 9:06 pm.</div>
+  <div class="tip">Your token is stored <b>only on this phone</b> (localStorage) — never part of the hosted page. Logged sets and messages queue locally and upload when you have signal; your Mac ingests them within ~10 minutes (background sync).</div>
   <div class="tip"><b>Install as app:</b> Safari → Share → Add to Home Screen.</div>`;
   $('saveset').onclick = async () => {
     LS.k = { token: $('tok').value.trim(), gist: $('gid').value.trim() };
