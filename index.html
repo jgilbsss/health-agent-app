@@ -279,7 +279,7 @@ let range = +(localStorage.getItem('ha_range') || 30);
 let metricState = JSON.parse(localStorage.getItem('ha_metrics') || 'null') || { rhr:true, hrv:true, slp:false, st:false, wt:false };
 let scrubIdx = null, chartRows = [];
 
-function isoToday() { return new Date().toISOString().slice(0,10); }
+function isoToday() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,10); } // local date — plain toISOString() is UTC and rolls to tomorrow at 8pm ET
 function weekdayOf(iso) { return WEEKDAYS[(new Date(iso + 'T12:00:00').getDay() + 6) % 7]; }
 function mondayOf(iso) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0,10); }
 function addDays(iso, n) { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
@@ -845,6 +845,11 @@ function renderDash() {
   <div class="card verdict"><div class="v ${r.cls}">${esc(r.verdict)}</div>
     <div class="adv">${esc(r.advice)}</div>
     <div class="sigs">${(r.signals || []).map(s => `<span class="sig s${s[0]}">${esc(s[1])}</span>`).join('')}</div></div>
+  ${ad.today_partial && ad.today_partial.date === isoToday() ? `
+  <div class="card" style="font-size:13px;color:var(--mut)">
+    <b style="color:var(--fg,#fff)">TODAY SO FAR</b> · ${ad.today_partial.steps != null ? Number(ad.today_partial.steps).toLocaleString() + ' steps' : ''}${ad.today_partial.kcal != null ? ' · ' + ad.today_partial.kcal + ' kcal' : ''}${ad.today_partial.ex_min != null ? ' · ' + ad.today_partial.ex_min + ' min exercise' : ''}
+    <div style="font-size:11px;letter-spacing:.5px;margin-top:3px">PARTIAL — AS OF LAST MAC SYNC (${esc(ad.generated || '?')}). YOUR WATCH IS THE LIVE NUMBER.</div>
+  </div>` : ''}
 
   ${muscleMapSection()}
 
