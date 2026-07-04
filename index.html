@@ -460,6 +460,23 @@ function restExtNote(ex) {
   return `rest+${total}s (set ${sets.join(',')})`;
 }
 
+function unsentDrafts(ad) {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith('ha_draft_')) continue;
+    const d = k.slice(9);
+    if (d >= isoToday()) continue;
+    if (((ad && ad.logged_dates) || []).includes(d)) continue;
+    if (store.queue.some(s => s.date === d)) continue;
+    try {
+      const dr = JSON.parse(localStorage.getItem(k));
+      if (dr && dr.exercises && dr.exercises.some(e => e.sets.some(s => s.done))) out.push(d);
+    } catch (e) {}
+  }
+  return out.sort();
+}
+
 /* ---------------- draft ---------------- */
 function getDraft(date, sessName, sess) {
   let d = store.draft(date);
@@ -493,6 +510,7 @@ function chipsRow() {
 }
 function bindCommon() {
   document.querySelectorAll('.chip[data-date]').forEach(c => c.onclick = () => { selDate = c.dataset.date; renderToday(); });
+  document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { selDate = b.dataset.goto; renderToday(); });
 }
 
 /* ---------------- TODAY ---------------- */
@@ -543,6 +561,14 @@ function renderToday() {
   let html = header(sess.title || sessName, accent, sess.focus || '') + chipsRow() +
     `<div class="meta"><span>SETS COMPLETED</span><b>${doneSets} / ${totalSets}</b></div>`;
   if (queued) html += `<div class="tip">📤 <b>Queued.</b> Will upload on next sync.</div>`;
+  if (selDate < isoToday() && doneSets > 0 && !queued)
+    html += `<div class="tip" style="border-color:#e05a5a">⚠️ <b>Never sent.</b> These sets exist only on this phone — tap “Finish session — send to coach” below.</div>`;
+  if (selDate === isoToday()) {
+    const uns = unsentDrafts(ad);
+    if (uns.length)
+      html += `<div class="tip" style="border-color:#e05a5a">⚠️ <b>${uns.length} past workout(s) never sent:</b> ` +
+        uns.map(d => `<button class="chip" data-goto="${d}">${d.slice(5)}</button>`).join(' ') + `</div>`;
+  }
 
   draft.exercises.forEach((ex, ei) => {
     const pex = sess.exercises[ei] || {};
