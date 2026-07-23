@@ -2,7 +2,7 @@
 // Strategy: index.html / sw.js are fetched with cache:'reload' (bypasses the
 // 10-min GitHub Pages HTTP cache) so updates appear on next open; media and
 // everything else use plain network-first; offline falls back to cache.
-const CACHE = 'health-agent-v14';
+const CACHE = 'health-agent-v15';
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', './index.html'])));
   self.skipWaiting();
