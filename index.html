@@ -257,10 +257,10 @@ const store = {
   set queue(v) { localStorage.setItem('ha_queue', JSON.stringify(v)); },
   get msgq() { return JSON.parse(localStorage.getItem('ha_msgq') || '[]'); },
   set msgq(v) { localStorage.setItem('ha_msgq', JSON.stringify(v)); },
-  draft(date) { return JSON.parse(localStorage.getItem('ha_draft_' + date) || 'null'); },
+  draft(date, sess) { return JSON.parse(localStorage.getItem('ha_draft_' + date + (sess ? '|' + sess : '')) || 'null'); },
   override(date) { return localStorage.getItem('ha_override_' + date) || null; },
   setOverride(date, v) { v ? localStorage.setItem('ha_override_' + date, v) : localStorage.removeItem('ha_override_' + date); },
-  setDraft(date, v) { localStorage.setItem('ha_draft_' + date, JSON.stringify(v)); },
+  setDraft(date, sess, v) { localStorage.setItem('ha_draft_' + date + (sess ? '|' + sess : ''), JSON.stringify(v)); },
 };
 
 const WEEKDAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -352,10 +352,10 @@ async function syncAll(statusEl) {
 }
 
 /* ---------------- timer ---------------- */
-let timer = { end:0, total:0, iv:null, ei:null, si:null, date:null };
-function startTimer(sec, label, date, ei, si) {
+let timer = { end:0, total:0, iv:null, ei:null, si:null, date:null, sess:null };
+function startTimer(sec, label, date, sess, ei, si) {
   clearInterval(timer.iv);
-  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200), ei, si, date };
+  timer = { end: Date.now() + sec * 1000, total: sec * 1000, iv: setInterval(tickTimer, 200), ei, si, date, sess };
   $('timerlabel').textContent = label || 'REST';
   $('timerbar').classList.add('on');
   acquireWake();
@@ -442,12 +442,12 @@ document.addEventListener('click', e => {
   if (e.target.id === 't30') {
     timer.end += 30000;
     if (timer.date != null && timer.ei != null) {
-      const d = store.draft(timer.date);
+      const d = store.draft(timer.date, timer.sess);
       if (d && d.exercises[timer.ei]) {
         const ex = d.exercises[timer.ei];
         ex.rest_ext = ex.rest_ext || {};
         ex.rest_ext[timer.si + 1] = (ex.rest_ext[timer.si + 1] || 0) + 30;
-        store.setDraft(timer.date, d);
+        store.setDraft(timer.date, timer.sess, d);
         if (tab === 'today') renderToday();
       }
     }
@@ -463,31 +463,53 @@ function restExtNote(ex) {
 }
 
 function unsentDrafts(ad) {
-  const out = [];
+  const out = new Set();
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (!k || !k.startsWith('ha_draft_')) continue;
-    const d = k.slice(9);
+    const rest = k.slice(9);
+    const d = rest.slice(0, 10);                 // YYYY-MM-DD; v17 per-session keys append '|Session'
+    const sess = rest.charAt(10) === '|' ? rest.slice(11) : null;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) continue;
     if (d >= isoToday()) continue;
     if (((ad && ad.logged_dates) || []).includes(d)) continue;
-    if (store.queue.some(s => s.date === d)) continue;
+    if (store.queue.some(s => s.date === d && (!sess || s.session === sess))) continue;
     try {
       const dr = JSON.parse(localStorage.getItem(k));
-      if (dr && dr.exercises && dr.exercises.some(e => e.sets.some(s => s.done))) out.push(d);
+      if (dr && dr.exercises && dr.exercises.some(e => e.sets.some(s => s.done))) out.add(d);
     } catch (e) {}
   }
-  return out.sort();
+  return [...out].sort();
+}
+
+function anyDraftWork(date) {
+  // any session's draft on this date with completed sets (v17: per-session keys share the date prefix)
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || !k.startsWith('ha_draft_' + date)) continue;
+    try {
+      const d = JSON.parse(localStorage.getItem(k));
+      if (d && d.exercises && d.exercises.some(e => e.sets.some(s => s.done))) return true;
+    } catch (e) {}
+  }
+  return false;
 }
 
 /* ---------------- draft ---------------- */
 function getDraft(date, sessName, sess) {
-  let d = store.draft(date);
+  let d = store.draft(date, sessName);
   if (d && d.session === sessName) return d;
+  const legacy = store.draft(date);   // pre-v17 one-draft-per-day key
+  if (legacy && legacy.session === sessName) {
+    store.setDraft(date, sessName, legacy);
+    localStorage.removeItem('ha_draft_' + date);
+    return legacy;
+  }
   d = { date, session: sessName, exercises: sess.exercises.map(ex => ({
     name: ex.name, equip: ex.type, rest: ex.rest_sec, rpe: '', note: '', rest_ext: {},
     sets: Array.from({ length: ex.sets }, () => ({ reps: '', weight: ex.prefill_weight ?? '', done: false }))
   })) };
-  store.setDraft(date, d);
+  store.setDraft(date, sessName, d);
   return d;
 }
 
@@ -515,11 +537,8 @@ function bindCommon() {
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { selDate = b.dataset.goto; renderToday(); });
   document.querySelectorAll('[data-ovr]').forEach(b => b.onclick = () => {
     const t = b.dataset.ovr === '__clear__' ? null : b.dataset.ovr;
-    const d = store.draft(selDate);
-    const det = ((store.appdata || {}).logged_detail || {})[selDate];
-    if (d && d.session !== t && d.exercises.some(e => e.sets.some(s => s.done)) &&
-        !(det && det.session === d.session) &&
-        !confirm('Switching will discard the sets you logged for ' + d.session + ' on this date. Continue?')) return;
+    // v17: drafts are per (date, session) — switching sessions never discards
+    // anything; each session's sets wait under their own key.
     store.setOverride(selDate, t);
     renderToday();
   });
@@ -542,8 +561,7 @@ function renderToday() {
   document.body.style.setProperty('--acc', accent);
 
   const detail = (ad.logged_detail || {})[selDate];
-  const draftExisting = store.draft(selDate);
-  const draftHasWork = draftExisting && draftExisting.exercises.some(e => e.sets.some(s => s.done));
+  const draftHasWork = anyDraftWork(selDate);
   if (detail && !draftHasWork && (!override || override === detail.session)) {
     v.innerHTML = header(detail.session, ACCENTS[detail.session] || accent, 'LOGGED · IN THE BOOKS') + chipsRow() +
       `<div class="meta"><span>SYNCED TO LIFT LOG</span><b>${detail.ex.length} EXERCISES</b></div>
@@ -572,16 +590,16 @@ function renderToday() {
   const draft = getDraft(selDate, sessName, sess);
   const totalSets = draft.exercises.reduce((a, e) => a + e.sets.length, 0);
   const doneSets = draft.exercises.reduce((a, e) => a + e.sets.filter(s => s.done).length, 0);
-  const queued = store.queue.some(s => s.date === selDate);
+  const queued = store.queue.some(s => s.date === selDate && s.session === sessName);
 
   let html = header(sess.title || sessName, accent, sess.focus || '') + chipsRow() +
     `<div class="meta"><span>SETS COMPLETED</span><b>${doneSets} / ${totalSets}</b></div>`;
   html += override
-    ? `<div class="tip">\u{1F500} <b>Off-schedule:</b> ${esc(sessName)} (scheduled: ${esc(ad.schedule[wd] || 'REST')}). <button class="chip" data-ovr="__clear__">BACK TO SCHEDULE</button></div>`
-    : `<details class="tip"><summary>\u{1F500} Different session today?</summary><div style="margin-top:8px">` +
+    ? `<div class="tip">\u{1F500} <b>Extra / off-schedule:</b> ${esc(sessName)}. ${esc(ad.schedule[wd] || 'REST')} is still today's scheduled session — its sets are saved. <button class="chip" data-ovr="__clear__">BACK TO ${esc((ad.schedule[wd] || 'REST').toUpperCase())}</button></div>`
+    : `<details class="tip"><summary>\u{1F500} Switch or ADD a session (e.g. Legs B after Pull B) — nothing gets deleted</summary><div style="margin-top:8px;font-size:12px;color:var(--mut)">Each session keeps its own sets. Finish ${esc(sessName)} first if you're mid-workout, then pick the add-on here.</div><div style="margin-top:8px">` +
       Object.keys(ad.sessions || {}).filter(s => s !== sessName).map(s => `<button class="chip" data-ovr="${esc(s)}">${esc(s.toUpperCase())}</button>`).join(' ') + `</div></details>`;
   if (queued) html += `<div class="tip">📤 <b>Queued.</b> Will upload on next sync.</div>`;
-  if (selDate < isoToday() && doneSets > 0 && !queued)
+  if (selDate < isoToday() && doneSets > 0 && !queued && !((ad.logged_dates || []).includes(selDate)))
     html += `<div class="tip" style="border-color:#e05a5a">⚠️ <b>Never sent.</b> These sets exist only on this phone — tap “Finish session — send to coach” below.</div>`;
   if (selDate === isoToday()) {
     const uns = unsentDrafts(ad);
@@ -623,26 +641,26 @@ function renderToday() {
     card.querySelectorAll('.setrow').forEach(row => {
       const si = +row.dataset.si;
       row.querySelector('.checkbtn').onclick = () => {
-        const d = store.draft(selDate);
+        const d = store.draft(selDate, sessName);
         const st = d.exercises[ei].sets[si];
         st.done = !st.done;
         if (st.done && !st.reps) st.reps = String((sess.exercises[ei] || {}).rep_low || '');
-        store.setDraft(selDate, d);
-        if (st.done) startTimer(d.exercises[ei].rest || 90, 'REST — ' + d.exercises[ei].name.toUpperCase(), selDate, ei, si);
+        store.setDraft(selDate, sessName, d);
+        if (st.done) startTimer(d.exercises[ei].rest || 90, 'REST — ' + d.exercises[ei].name.toUpperCase(), selDate, sessName, ei, si);
         renderToday();
       };
       row.querySelectorAll('input').forEach(inp => inp.onchange = () => {
-        const d = store.draft(selDate);
+        const d = store.draft(selDate, sessName);
         d.exercises[ei].sets[si][inp.dataset.f] = inp.value;
-        store.setDraft(selDate, d);
+        store.setDraft(selDate, sessName, d);
       });
     });
-    card.querySelector('[data-f=rpe]').onchange = e => { const d = store.draft(selDate); d.exercises[ei].rpe = e.target.value; store.setDraft(selDate, d); };
-    card.querySelector('[data-f=note]').onchange = e => { const d = store.draft(selDate); d.exercises[ei].note = e.target.value; store.setDraft(selDate, d); };
+    card.querySelector('[data-f=rpe]').onchange = e => { const d = store.draft(selDate, sessName); d.exercises[ei].rpe = e.target.value; store.setDraft(selDate, sessName, d); };
+    card.querySelector('[data-f=note]').onchange = e => { const d = store.draft(selDate, sessName); d.exercises[ei].note = e.target.value; store.setDraft(selDate, sessName, d); };
   });
   const fin = $('finish');
   if (fin) fin.onclick = () => {
-    const d = store.draft(selDate);
+    const d = store.draft(selDate, sessName);
     const payload = {
       id: d.date + '|' + d.session + '|' + Date.now(),
       date: d.date, session: d.session, source: 'phone-app',
