@@ -258,6 +258,8 @@ const store = {
   get msgq() { return JSON.parse(localStorage.getItem('ha_msgq') || '[]'); },
   set msgq(v) { localStorage.setItem('ha_msgq', JSON.stringify(v)); },
   draft(date) { return JSON.parse(localStorage.getItem('ha_draft_' + date) || 'null'); },
+  override(date) { return localStorage.getItem('ha_override_' + date) || null; },
+  setOverride(date, v) { v ? localStorage.setItem('ha_override_' + date, v) : localStorage.removeItem('ha_override_' + date); },
   setDraft(date, v) { localStorage.setItem('ha_draft_' + date, JSON.stringify(v)); },
 };
 
@@ -511,6 +513,14 @@ function chipsRow() {
 function bindCommon() {
   document.querySelectorAll('.chip[data-date]').forEach(c => c.onclick = () => { selDate = c.dataset.date; renderToday(); });
   document.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => { selDate = b.dataset.goto; renderToday(); });
+  document.querySelectorAll('[data-ovr]').forEach(b => b.onclick = () => {
+    const t = b.dataset.ovr === '__clear__' ? null : b.dataset.ovr;
+    const d = store.draft(selDate);
+    if (d && d.session !== t && d.exercises.some(e => e.sets.some(s => s.done)) &&
+        !confirm('Switching will discard the sets you logged for ' + d.session + ' on this date. Continue?')) return;
+    store.setOverride(selDate, t);
+    renderToday();
+  });
 }
 
 /* ---------------- TODAY ---------------- */
@@ -523,7 +533,9 @@ function renderToday() {
     return;
   }
   const wd = weekdayOf(selDate);
-  const sessName = ad.schedule[wd] || 'REST';
+  const override = store.override(selDate);
+  const sessName = (override && ad.sessions && ad.sessions[override]) ? override
+                   : (ad.schedule[wd] || 'REST');
   const accent = ACCENTS[sessName] || 'var(--gold)';
   document.body.style.setProperty('--acc', accent);
 
@@ -546,7 +558,8 @@ function renderToday() {
       <div class="restcard"><div class="emoji">🌿</div><h2>Full Rest</h2></div>
       <div class="tip"><b>Sleep is training.</b> One short night barely dents strength — back-to-back short nights wreck your compounds. Protect 7+.</div>
       <div class="tip"><b>Protein still matters.</b> ${esc(ad.protein_line || '')}</div>
-      <div class="tip"><b>Tomorrow:</b> ${esc(ad.schedule[WEEKDAYS[(WEEKDAYS.indexOf(wd) + 1) % 7]])}. Set out the DBs tonight.</div>`;
+      <div class="tip"><b>Tomorrow:</b> ${esc(ad.schedule[WEEKDAYS[(WEEKDAYS.indexOf(wd) + 1) % 7]])}. Set out the DBs tonight.</div>
+      <div class="tip"><b>Train anyway?</b> Off-schedule session (makeup / travel re-entry / optional add-on):<br><div style="margin-top:8px">${Object.keys(ad.sessions || {}).map(s => `<button class="chip" data-ovr="${esc(s)}">${esc(s.toUpperCase())}</button>`).join(' ')}</div></div>`;
     bindCommon();
     return;
   }
@@ -560,6 +573,10 @@ function renderToday() {
 
   let html = header(sess.title || sessName, accent, sess.focus || '') + chipsRow() +
     `<div class="meta"><span>SETS COMPLETED</span><b>${doneSets} / ${totalSets}</b></div>`;
+  html += override
+    ? `<div class="tip">\u{1F500} <b>Off-schedule:</b> ${esc(sessName)} (scheduled: ${esc(ad.schedule[wd] || 'REST')}). <button class="chip" data-ovr="__clear__">BACK TO SCHEDULE</button></div>`
+    : `<details class="tip"><summary>\u{1F500} Different session today?</summary><div style="margin-top:8px">` +
+      Object.keys(ad.sessions || {}).filter(s => s !== sessName).map(s => `<button class="chip" data-ovr="${esc(s)}">${esc(s.toUpperCase())}</button>`).join(' ') + `</div></details>`;
   if (queued) html += `<div class="tip">📤 <b>Queued.</b> Will upload on next sync.</div>`;
   if (selDate < isoToday() && doneSets > 0 && !queued)
     html += `<div class="tip" style="border-color:#e05a5a">⚠️ <b>Never sent.</b> These sets exist only on this phone — tap “Finish session — send to coach” below.</div>`;
