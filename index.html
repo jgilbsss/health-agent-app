@@ -516,7 +516,9 @@ function bindCommon() {
   document.querySelectorAll('[data-ovr]').forEach(b => b.onclick = () => {
     const t = b.dataset.ovr === '__clear__' ? null : b.dataset.ovr;
     const d = store.draft(selDate);
+    const det = ((store.appdata || {}).logged_detail || {})[selDate];
     if (d && d.session !== t && d.exercises.some(e => e.sets.some(s => s.done)) &&
+        !(det && det.session === d.session) &&
         !confirm('Switching will discard the sets you logged for ' + d.session + ' on this date. Continue?')) return;
     store.setOverride(selDate, t);
     renderToday();
@@ -542,13 +544,14 @@ function renderToday() {
   const detail = (ad.logged_detail || {})[selDate];
   const draftExisting = store.draft(selDate);
   const draftHasWork = draftExisting && draftExisting.exercises.some(e => e.sets.some(s => s.done));
-  if (detail && !draftHasWork) {
+  if (detail && !draftHasWork && (!override || override === detail.session)) {
     v.innerHTML = header(detail.session, ACCENTS[detail.session] || accent, 'LOGGED · IN THE BOOKS') + chipsRow() +
       `<div class="meta"><span>SYNCED TO LIFT LOG</span><b>${detail.ex.length} EXERCISES</b></div>
       <div class="card">` + detail.ex.map(e => `
         <div class="hrow"><div><div class="nm">${esc(e.n)}</div>${e.note ? `<div class="hnote">${esc(e.note)}</div>` : ''}</div>
         <div class="det">${esc(e.w)} × ${esc(e.r)}${e.rpe ? ' @' + esc(e.rpe) : ''}</div></div>`).join('') +
-      `</div>`;
+      `</div>` +
+      `<div class="tip"><b>Train more today?</b> Log an additional session (e.g. the optional Legs B add-on):<br><div style="margin-top:8px">${Object.keys(ad.sessions || {}).filter(s => s !== detail.session).map(s => `<button class="chip" data-ovr="${esc(s)}">${esc(s.toUpperCase())}</button>`).join(' ')}</div></div>`;
     bindCommon();
     return;
   }
@@ -652,7 +655,7 @@ function renderToday() {
         })
     };
     if (!payload.exercises.length) { $('tstatus').textContent = 'Nothing logged yet.'; return; }
-    const q = store.queue.filter(s => s.date !== d.date);
+    const q = store.queue.filter(s => !(s.date === d.date && s.session === d.session));
     q.push(payload);
     store.queue = q;
     const prs = detectPRs(payload);
@@ -1155,7 +1158,7 @@ function renderCoach() {
     const txt = $('msg').value.trim();
     if (!txt) return;
     const mq2 = store.msgq;
-    mq2.push({ id: 'msg|' + Date.now(), date: new Date().toISOString().slice(0, 16).replace('T', ' '), text: txt });
+    mq2.push({ id: 'msg|' + Date.now(), date: (d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16).replace('T', ' '))(new Date()), text: txt });
     store.msgq = mq2;
     $('msg').value = '';
     syncAll($('mstatus'));
